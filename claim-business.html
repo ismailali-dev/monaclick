@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover">
+    <title>Monaclick | Claim Business</title>
+    <script src="/finder/assets/js/theme-switcher.js"></script>
+    <link rel="preload" href="/finder/assets/fonts/inter-variable-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/finder/assets/icons/finder-icons.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/finder/assets/icons/finder-icons.min.css">
+    <link rel="stylesheet" href="/finder/assets/css/theme.min.css">
+    <link rel="stylesheet" href="/finder/assets/css/monaclick-finder-colors.css">
+    <style>
+      body.claim-business-page {
+        background:
+          radial-gradient(circle at top left, rgba(216, 81, 81, 0.08), transparent 32%),
+          radial-gradient(circle at top right, rgba(252, 146, 49, 0.08), transparent 28%),
+          #fff;
+      }
+      .claim-shell {
+        min-height: calc(100vh - 81px);
+      }
+      .claim-card {
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+      }
+      .claim-accent-btn {
+        --fn-btn-bg: #f06418;
+        --fn-btn-border-color: #f06418;
+        --fn-btn-hover-bg: #db5b16;
+        --fn-btn-hover-border-color: #db5b16;
+        --fn-btn-active-bg: #c95215;
+        --fn-btn-active-border-color: #c95215;
+      }
+      #claimOtp {
+        letter-spacing: .45em;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body class="claim-business-page">
+    <header class="navbar navbar-expand-lg bg-body border-bottom px-0">
+      <div class="container py-3">
+        <a class="navbar-brand py-1 text-decoration-none" href="/combined">
+          <span class="fs-4 fw-semibold text-dark-emphasis">Monaclick</span>
+        </a>
+      </div>
+    </header>
+
+    <main class="container py-5 claim-shell d-flex align-items-center">
+      <div class="row justify-content-center">
+        <div class="col-md-9 col-lg-7 col-xl-5">
+          <div class="card claim-card rounded-4 overflow-hidden">
+            <div class="card-body p-4 p-sm-5">
+              <div class="text-center mb-4">
+                <span class="badge bg-faded-primary text-primary mb-3">Business Claim</span>
+                <h1 class="h3 mb-2" id="claimPageTitle">Claim your business</h1>
+                <p class="text-body-secondary mb-0" id="claimPageText">Enter your email to receive a 6-digit OTP.</p>
+              </div>
+
+              <div id="claimAlert"></div>
+
+              <div class="border rounded-4 bg-body-tertiary p-3 p-sm-4 mb-4" id="claimListingCard">
+                <div class="placeholder-glow" id="claimListingLoading">
+                  <span class="placeholder col-8 mb-2"></span>
+                  <span class="placeholder col-5"></span>
+                </div>
+                <div class="d-none" id="claimListingSummary">
+                  <div class="small text-body-secondary mb-1" id="claimListingModule"></div>
+                  <div class="fw-semibold fs-5" id="claimListingName"></div>
+                </div>
+              </div>
+
+              <form id="claimEmailForm" class="needs-validation" novalidate>
+                <div class="mb-3">
+                  <label class="form-label" for="claimEmail">Email Address</label>
+                  <input class="form-control form-control-lg" type="email" id="claimEmail" placeholder="Enter your email" required>
+                  <div class="invalid-feedback">Please enter a valid email address.</div>
+                </div>
+                <button class="btn btn-primary claim-accent-btn btn-lg w-100" type="submit">Send OTP</button>
+              </form>
+
+              <form id="claimOtpForm" class="needs-validation d-none" novalidate>
+                <div class="mb-3">
+                  <label class="form-label" for="claimOtp">Verification Code</label>
+                  <input class="form-control form-control-lg text-center tracking-wide" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" id="claimOtp" placeholder="Enter 6-digit OTP" required>
+                  <div class="invalid-feedback">Please enter the 6-digit code.</div>
+                </div>
+                <div class="d-grid gap-2">
+                  <button class="btn btn-primary claim-accent-btn btn-lg" type="submit">Verify OTP</button>
+                  <button class="btn btn-outline-secondary" type="button" id="claimResendBtn">Resend OTP</button>
+                </div>
+              </form>
+
+              <div id="claimCompletePanel" class="d-none">
+                <div class="alert alert-success mb-3">
+                  OTP verified successfully. You can now claim this profile.
+                </div>
+                <button class="btn btn-primary claim-accent-btn btn-lg w-100" type="button" id="claimCompleteBtn">Claim Profile</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="/finder/assets/js/monaclick-claim-dynamic.js"></script>
+    <script src="/finder/assets/js/theme.min.js"></script>
+  </body>
+</html>

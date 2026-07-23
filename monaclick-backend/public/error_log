@@ -1,0 +1,101 @@
+[19-Mar-2026 19:39:31 UTC] PHP Warning:  include(/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/composer/../sebastian/version/src/Version.php): Failed to open stream: No such file or directory in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/composer/ClassLoader.php on line 576
+[19-Mar-2026 19:39:31 UTC] PHP Warning:  include(): Failed opening '/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/composer/../sebastian/version/src/Version.php' for inclusion (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/composer/ClassLoader.php on line 576
+[19-Mar-2026 19:39:31 UTC] PHP Fatal error:  Uncaught Error: Class "SebastianBergmann\Version" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/phpunit/phpunit/src/Runner/Version.php:37
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/phpunit/phpunit/src/Runner/Version.php(48): PHPUnit\Runner\Version::id()
+#1 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/nunomaduro/collision/src/Adapters/Phpunit/Autoload.php(10): PHPUnit\Runner\Version::series()
+#2 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/composer/autoload_real.php(41): require('/home/designsp/...')
+#3 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/composer/autoload_real.php(45): {closure}()
+#4 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/autoload.php(22): ComposerAutoloaderInit9ef3dca907a81ac8e52c6aa60502a413::getLoader()
+#5 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php(14): require('/home/designsp/...')
+#6 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/phpunit/phpunit/src/Runner/Version.php on line 37
+[19-Mar-2026 19:39:46 UTC] PHP Warning:  include(/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/composer/../sebastian/version/src/Version.php): Failed to open stream: No such file or directory in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/composer/ClassLoader.php on line 576
+[19-Mar-2026 19:39:46 UTC] PHP Warning:  include(): Failed opening '/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/composer/../sebastian/version/src/Version.php' for inclusion (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/composer/ClassLoader.php on line 576
+[19-Mar-2026 19:39:46 UTC] PHP Fatal error:  Uncaught Error: Class "SebastianBergmann\Version" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/phpunit/phpunit/src/Runner/Version.php:37
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/phpunit/phpunit/src/Runner/Version.php(48): PHPUnit\Runner\Version::id()
+#1 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/nunomaduro/collision/src/Adapters/Phpunit/Autoload.php(10): PHPUnit\Runner\Version::series()
+#2 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/composer/autoload_real.php(41): require('/home/designsp/...')
+#3 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/composer/autoload_real.php(45): {closure}()
+#4 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/autoload.php(22): ComposerAutoloaderInit9ef3dca907a81ac8e52c6aa60502a413::getLoader()
+#5 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php(14): require('/home/designsp/...')
+#6 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/phpunit/phpunit/src/Runner/Version.php on line 37
+[19-Mar-2026 19:39:52 UTC] PHP Warning:  include(/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/composer/../sebastian/version/src/Version.php): Failed to open stream: No such file or directory in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/composer/ClassLoader.php on line 576
+[19-Mar-2026 19:39:52 UTC] PHP Warning:  include(): Failed opening '/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/composer/../sebastian/version/src/Version.php' for inclusion (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/composer/ClassLoader.php on line 576
+[19-Mar-2026 19:39:52 UTC] PHP Fatal error:  Uncaught Error: Class "SebastianBergmann\Version" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/phpunit/phpunit/src/Runner/Version.php:37
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/phpunit/phpunit/src/Runner/Version.php(48): PHPUnit\Runner\Version::id()
+#1 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/nunomaduro/collision/src/Adapters/Phpunit/Autoload.php(10): PHPUnit\Runner\Version::series()
+#2 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/composer/autoload_real.php(41): require('/home/designsp/...')
+#3 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/composer/autoload_real.php(45): {closure}()
+#4 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/autoload.php(22): ComposerAutoloaderInit9ef3dca907a81ac8e52c6aa60502a413::getLoader()
+#5 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php(14): require('/home/designsp/...')
+#6 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/phpunit/phpunit/src/Runner/Version.php on line 37
+[19-Mar-2026 19:40:54 UTC] PHP Warning:  require(/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php on line 14
+[19-Mar-2026 19:40:54 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/../vendor/autoload.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php on line 14
+[19-Mar-2026 19:41:00 UTC] PHP Warning:  require(/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php on line 14
+[19-Mar-2026 19:41:00 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/../vendor/autoload.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php on line 14
+[19-Mar-2026 19:41:03 UTC] PHP Warning:  require(/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php on line 14
+[19-Mar-2026 19:41:03 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/../vendor/autoload.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php on line 14
+[19-Mar-2026 19:41:08 UTC] PHP Warning:  require(/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php on line 14
+[19-Mar-2026 19:41:08 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/../vendor/autoload.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php on line 14
+[19-Mar-2026 19:41:38 UTC] PHP Warning:  require(/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php on line 14
+[19-Mar-2026 19:41:38 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/../vendor/autoload.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php on line 14
+[19-Mar-2026 19:41:43 UTC] PHP Warning:  require(/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php on line 14
+[19-Mar-2026 19:41:43 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/../vendor/autoload.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php on line 14
+[19-Mar-2026 19:41:57 UTC] PHP Warning:  require(/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php on line 14
+[19-Mar-2026 19:41:57 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/../vendor/autoload.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php on line 14
+[19-Mar-2026 19:55:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php(18): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 20:08:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php(18): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 20:08:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php(18): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 20:08:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php(18): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 20:13:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php(18): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 20:17:51 UTC] PHP Warning:  require(/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php on line 14
+[19-Mar-2026 20:17:51 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/../vendor/autoload.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/public/index.php on line 14

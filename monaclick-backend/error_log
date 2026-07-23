@@ -1,0 +1,106 @@
+[19-Mar-2026 19:46:44 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan(14): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 19:57:38 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan(14): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 19:59:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan(14): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 19:59:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan(14): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 19:59:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan(14): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 19:59:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan(14): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 19:59:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan(14): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 19:59:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan(14): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 19:59:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan(14): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 19:59:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan(14): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 20:01:43 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan(14): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 20:06:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan(14): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 20:06:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan(14): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 20:06:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan(14): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 20:06:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan(14): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 20:06:07 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan(14): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 20:06:07 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan(14): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 20:06:07 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan(14): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 20:06:07 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan(14): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 20:12:22 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php:7
+Stack trace:
+#0 /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan(14): require_once()
+#1 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/bootstrap/app.php on line 7
+[19-Mar-2026 20:15:24 UTC] PHP Warning:  require(/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/autoload.php): Failed to open stream: No such file or directory in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan on line 10
+[19-Mar-2026 20:15:24 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/designsp/monaclick.uslogoandweb.com/monaclick-backend/vendor/autoload.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan:10
+Stack trace:
+#0 {main}
+  thrown in /home/designsp/monaclick.uslogoandweb.com/monaclick-backend/artisan on line 10
+[19-Mar-2026 20:52:18 UTC] PHP Parse error:  syntax error, unexpected token "=", expecting end of file in Command line code on line 1

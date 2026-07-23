@@ -1,0 +1,452 @@
+(() => {
+  window.__MC_ENTRY_DYNAMIC_VERSION__ = '2026-03-13-r2';
+  try { console.log('[Monaclick] entry dynamic', window.__MC_ENTRY_DYNAMIC_VERSION__); } catch (e) {}
+
+  const path = window.location.pathname;
+  if (!path.startsWith('/entry/')) return;
+
+  const moduleFromPath = path.split('/')[2] || 'contractors';
+  const allowedModules = new Set(['contractors', 'real-estate', 'cars', 'events', 'restaurants']);
+  const selectedModule = allowedModules.has(moduleFromPath) ? moduleFromPath : 'contractors';
+  const params = new URLSearchParams(window.location.search);
+
+  const setReady = () => {
+    if (document.body?.classList.contains('monaclick-entry-shell')) {
+      document.body.setAttribute('data-entry-ready', '1');
+    }
+  };
+
+  const wireDeadPlaceholderLinks = () => {
+    const target = `/listings/${selectedModule}`;
+    document.querySelectorAll('a[href="#!"], a[href="#"]').forEach((link) => {
+      const isUiToggle = link.hasAttribute('data-bs-toggle') || link.getAttribute('role') === 'button';
+      if (isUiToggle) return;
+      link.setAttribute('href', target);
+    });
+  };
+
+  wireDeadPlaceholderLinks();
+
+  const container = document.querySelector('main.content-wrapper > .container');
+  if (!container) {
+    setReady();
+    return;
+  }
+
+  const escapeHtml = (value) =>
+    String(value ?? '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+
+  const formatDate = (iso) => {
+    if (!iso) return 'N/A';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return 'N/A';
+    return d.toLocaleString();
+  };
+
+  const moduleLabel = (value) => ({
+    contractors: 'Contractors',
+    'real-estate': 'Real Estate',
+    cars: 'Cars',
+    events: 'Events',
+    restaurants: 'Restaurants',
+  }[value] || 'Listings');
+
+  const normalizeRestaurantExcerpt = (item) => {
+    if (item.module !== 'restaurants') return item.excerpt || '';
+    // Server now returns a clean excerpt for v1 restaurant payloads, but keep a fallback for older data.
+    const raw = String(item.excerpt || '').trim();
+    if (!raw.startsWith('{') || !raw.endsWith('}')) return raw;
+    try {
+      const meta = JSON.parse(raw);
+      if (meta && meta._mc_restaurant_v1) return '';
+    } catch (e) {
+      // ignore
+    }
+    return raw;
+  };
+
+  const titleCaseToken = (token) => {
+    const upper = String(token || '').toUpperCase();
+    const keepUpper = new Set(['ABS', 'MPG', 'GPS', 'USB', 'A/C', 'AC', 'AWD', 'FWD', 'RWD', '4WD', '2WD', 'LED']);
+    if (keepUpper.has(upper)) return upper === 'AC' ? 'A/C' : upper;
+    return upper.slice(0, 1) + upper.slice(1).toLowerCase();
+  };
+
+  const humanizeFeature = (value) => {
+    const raw = String(value ?? '').trim();
+    if (!raw) return '';
+    const cleaned = raw.replace(/^service:\s*/i, '').trim();
+    if (!cleaned) return '';
+    if (/[A-Z]/.test(cleaned) && cleaned.includes(' ')) return cleaned;
+    return cleaned
+      .replaceAll('_', ' ')
+      .replaceAll('-', ' ')
+      .split(/\s+/g)
+      .filter(Boolean)
+      .map(titleCaseToken)
+      .join(' ');
+  };
+
+  const normalizedFeatures = (item) => {
+    const base = Array.isArray(item?.features) ? item.features : [];
+    const carWizard =
+      item?.module === 'cars' && Array.isArray(item?.details?.car?.features)
+        ? item.details.car.features
+        : [];
+    const restaurantServices =
+      item?.module === 'restaurants' && Array.isArray(item?.details?.restaurant?.services)
+        ? item.details.restaurant.services.map((s) => `service:${String(s ?? '').trim()}`)
+        : [];
+
+    const values = [...base, ...carWizard, ...restaurantServices]
+      .map((f) => String(f ?? '').trim())
+      .filter(Boolean);
+
+    const seen = new Set();
+    return values.filter((f) => {
+      const key = f.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  };
+
+  const renderFeatures = (item) => {
+    const features = normalizedFeatures(item);
+    if (!features.length) return '';
+
+    const badges = features
+      .map(humanizeFeature)
+      .filter(Boolean)
+      .map((label) => `<span class="badge bg-body-secondary text-body">${escapeHtml(label)}</span>`)
+      .join('');
+
+    if (!badges) return '';
+
+    return `
+      <section class="pb-sm-2 pb-lg-3 mb-5">
+        <h2 class="h4 mb-3">Features</h2>
+        <div class="d-flex flex-wrap gap-2">${badges}</div>
+      </section>
+    `;
+  };
+
+  // Some deployed templates/JS variants don't include ${renderFeatures(item)} in the main HTML string.
+  // Ensure the Features section appears right after the Details section whenever features exist.
+  const ensureFeaturesAfterDetails = (item) => {
+    const features = normalizedFeatures(item);
+    if (!features.length) return;
+    if (!container) return;
+    if (container.querySelector('[data-mc-features="1"]')) return;
+
+    const detailsHeading = Array.from(container.querySelectorAll('h2.h4'))
+      .find((h) => (h.textContent || '').trim().toLowerCase() === 'details');
+    const detailsSection = detailsHeading ? detailsHeading.closest('section') : null;
+    if (!detailsSection) return;
+
+    const html = renderFeatures(item)
+      .replace('<section', '<section data-mc-features="1"');
+    if (!html.trim()) return;
+
+    detailsSection.insertAdjacentHTML('afterend', html);
+  };
+
+  const detailPairs = (item) => {
+    const pairs = [];
+    const add = (label, value) => {
+      const v = String(value ?? '').trim();
+      if (!v || v.toLowerCase() === 'n/a') return;
+      pairs.push({ label, value: v });
+    };
+
+    add('Category', item.category?.name || '');
+    add('City', item.city?.name || '');
+    add('Price', item.price || '');
+    add('Rating', item.rating ? `${Number(item.rating).toFixed(1)} (${Number(item.reviews_count || 0)})` : '');
+
+    if (item.module === 'contractors' && item.details?.contractor) {
+      const d = item.details.contractor;
+      add('Service Area', d.service_area || '');
+      add('License', d.license_number || '');
+      add('Verified', d.is_verified ? 'Yes' : 'No');
+      if (d.business_hours && typeof d.business_hours === 'object') {
+        add('Hours', Object.entries(d.business_hours).map(([day, value]) => `${day}: ${value}`).join(', '));
+      }
+    }
+
+    if (item.module === 'real-estate' && item.details?.property) {
+      const d = item.details.property;
+      add('Type', d.property_type || '');
+      add('Listing', d.listing_type || '');
+      add('Bedrooms', d.bedrooms ?? '');
+      add('Bathrooms', d.bathrooms ?? '');
+      add('Area (sqft)', d.area_sqft ?? '');
+    }
+
+    if (item.module === 'cars' && item.details?.car) {
+      const d = item.details.car;
+      add('Car', [d.brand, d.model].filter(Boolean).join(' '));
+      add('Condition', d.condition || '');
+      add('Year', d.year || '');
+      add('Mileage', d.mileage || '');
+      add('Body', d.body_type || '');
+      add('Drive', d.drive_type || '');
+      add('Engine', d.engine || '');
+      add('Fuel', d.fuel_type || '');
+      add('Transmission', d.transmission || '');
+      if (d.city_mpg || d.highway_mpg) {
+        add('MPG', [d.city_mpg ? `City ${d.city_mpg}` : '', d.highway_mpg ? `Hwy ${d.highway_mpg}` : ''].filter(Boolean).join(' / '));
+      }
+      add('Seller', d.seller_type || '');
+      add('Contact', [d.contact_phone, d.contact_email].filter(Boolean).join(' • '));
+      const flags = [];
+      if (d.negotiated) flags.push('Negotiable');
+      if (d.installments) flags.push('Installments');
+      if (d.exchange) flags.push('Exchange');
+      if (d.uncleared) flags.push('Uncleared');
+      if (d.dealer_ready) flags.push('Dealer ready');
+      if (flags.length) add('Options', flags.join(', '));
+      add('Color', [d.exterior_color, d.interior_color].filter(Boolean).join(' / '));
+    }
+
+    if (item.module === 'events' && item.details?.event) {
+      const d = item.details.event;
+      add('Starts', formatDate(d.starts_at));
+      add('Ends', formatDate(d.ends_at));
+      add('Venue', d.venue || '');
+      add('Capacity', d.capacity || '');
+    }
+
+    if (item.module === 'restaurants') {
+      const d = item.details?.restaurant || {};
+      add('Cuisine', item.category?.name || '');
+      add('City', item.city?.name || '');
+      add('Address', d.address || '');
+      add('ZIP', d.zip_code || '');
+      add('Seats', d.seating_capacity || '');
+      add('Services', Array.isArray(d.services) ? d.services.filter(Boolean).join(', ') : '');
+      if (d.opening_hours && typeof d.opening_hours === 'object') {
+        add('Hours', Object.entries(d.opening_hours).map(([day, value]) => `${day}: ${value}`).join(', '));
+      }
+      add('Contact', [d.phone, d.email].filter(Boolean).join(' • '));
+    }
+
+    return pairs;
+  };
+
+  const renderDetailsGrid = (item) => {
+    const pairs = detailPairs(item);
+    if (!pairs.length) {
+      return '<div class="text-body-secondary fs-sm">Details not available.</div>';
+    }
+    return `
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+        ${pairs.map((p) => `
+          <div class="col">
+            <div class="border rounded p-3 h-100">
+              <div class="text-body-secondary small">${escapeHtml(p.label)}</div>
+              <div class="fw-semibold">${escapeHtml(p.value)}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  };
+
+  const renderEntry = (item, related = []) => {
+    document.title = `Monaclick | ${moduleLabel(item.module)} - ${item.title}`;
+
+    const images = [item.image_url, ...(item.images || []).map((img) => img.image_url)].filter(Boolean).slice(0, 5);
+    const primaryImage = images[0] || '/finder/assets/img/placeholders/preview-square.svg';
+    const thumbs = images.slice(1, 5);
+
+    container.innerHTML = `
+      <nav class="pb-2 pb-md-3" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/${item.module}">Home</a></li>
+          <li class="breadcrumb-item"><a href="/listings/${item.module}">${moduleLabel(item.module)}</a></li>
+          <li class="breadcrumb-item active" aria-current="page">${escapeHtml(item.title)}</li>
+        </ol>
+      </nav>
+
+      <div class="d-flex align-items-start align-items-sm-center justify-content-between pb-3 mb-3">
+        <div>
+          <h1 class="h4 mb-2">${escapeHtml(item.title)}</h1>
+          <ul class="list-inline gap-2 fs-sm ms-n2 mb-0">
+            <li class="d-flex align-items-center gap-1 ms-2">
+              <i class="fi-star-filled text-warning"></i>
+              <span class="fs-sm text-secondary-emphasis">${Number(item.rating || 0).toFixed(1)}</span>
+              <span class="fs-xs text-body-secondary align-self-end">(${Number(item.reviews_count || 0)})</span>
+            </li>
+            <li class="d-flex align-items-center gap-1 ms-2">
+              <i class="fi-map-pin"></i>
+              ${escapeHtml(item.city?.name || 'City')}
+            </li>
+            <li class="d-flex align-items-center gap-1 ms-2">
+              <i class="fi-credit-card"></i>
+              ${escapeHtml(item.price || 'Price on request')}
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row g-3 g-sm-4 g-md-3 g-xl-4 pb-sm-2 mb-5">
+        <div class="col-md-8">
+          <a class="hover-effect-scale hover-effect-opacity position-relative d-flex rounded overflow-hidden" href="${escapeHtml(primaryImage)}" data-glightbox data-gallery="image-gallery">
+            <i class="fi-zoom-in hover-effect-target fs-3 text-white position-absolute top-50 start-50 translate-middle opacity-0 z-2"></i>
+            <span class="hover-effect-target position-absolute top-0 start-0 w-100 h-100 bg-black bg-opacity-25 opacity-0 z-1"></span>
+            <div class="ratio hover-effect-target bg-body-tertiary rounded" style="--fn-aspect-ratio: calc(432 / 856 * 100%)">
+              <img src="${escapeHtml(primaryImage)}" alt="${escapeHtml(item.title)}" onerror="this.onerror=null;this.src='/finder/assets/img/placeholders/preview-square.svg';">
+            </div>
+          </a>
+        </div>
+        <div class="col-md-4">
+          <div class="row row-cols-2 g-3 g-sm-4 g-md-3 g-xl-4">
+            ${thumbs.map((img) => `
+              <div class="col">
+                <a class="hover-effect-scale hover-effect-opacity position-relative d-flex rounded overflow-hidden" href="${escapeHtml(img)}" data-glightbox data-gallery="image-gallery">
+                  <i class="fi-zoom-in hover-effect-target fs-3 text-white position-absolute top-50 start-50 translate-middle opacity-0 z-2"></i>
+                  <span class="hover-effect-target position-absolute top-0 start-0 w-100 h-100 bg-black bg-opacity-25 opacity-0 z-1"></span>
+                  <div class="ratio hover-effect-target bg-body-tertiary rounded" style="--fn-aspect-ratio: calc(204 / 196 * 100%)">
+                    <img src="${escapeHtml(img)}" alt="${escapeHtml(item.title)}" onerror="this.onerror=null;this.src='/finder/assets/img/placeholders/preview-square.svg';">
+                  </div>
+                </a>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="row pb-2 pb-sm-3 pb-md-4 pb-lg-5">
+        <div class="col-lg-8 col-xl-7">
+          <section class="pb-sm-2 pb-lg-3 mb-5">
+            <h2 class="h4 mb-lg-4">About</h2>
+            <p class="fs-sm mb-0">${escapeHtml(normalizeRestaurantExcerpt(item) || 'No description available yet.')}</p>
+          </section>
+          <section class="pb-sm-2 pb-lg-3 mb-5">
+            <h2 class="h4 mb-3">Details</h2>
+            ${renderDetailsGrid(item)}
+          </section>
+          ${renderFeatures(item)}
+          <section class="pb-sm-2 pb-lg-3 mb-0">
+            <h2 class="h4 mb-4">Related listings</h2>
+            <div class="row row-cols-1 row-cols-sm-2 g-4">
+              ${related.map((r) => `
+                <div class="col">
+                  <article class="card h-100 border-0 shadow-sm hover-effect-opacity">
+                    <img src="${escapeHtml(r.image_url || '/finder/assets/img/placeholders/preview-square.svg')}" class="card-img-top" alt="${escapeHtml(r.title)}" style="height: 180px; object-fit: cover;" onerror="this.onerror=null;this.src='/finder/assets/img/placeholders/preview-square.svg';">
+                    <div class="card-body">
+                      <h3 class="h6 mb-1">
+                        <a class="hover-effect-underline" href="/entry/${encodeURIComponent(r.module)}?slug=${encodeURIComponent(r.slug)}">${escapeHtml(r.title)}</a>
+                      </h3>
+                      <p class="small text-body-secondary mb-2">${escapeHtml(r.city?.name || '')}</p>
+                      <div class="small text-warning"><i class="fi-star-filled me-1"></i>${Number(r.rating || 0).toFixed(1)} (${Number(r.reviews_count || 0)})</div>
+                    </div>
+                  </article>
+                </div>
+              `).join('')}
+            </div>
+          </section>
+        </div>
+      </div>
+    `;
+
+    ensureFeaturesAfterDetails(item);
+
+    if (window.GLightbox) {
+      try {
+        window.GLightbox({ selector: '[data-glightbox]' });
+      } catch (e) {
+        // no-op
+      }
+    }
+
+    setReady();
+  };
+
+  const showNoPreview = () => {
+    container.innerHTML = `
+      <div class="alert alert-warning mb-0">
+        Preview data is missing. Please open detailed preview from the listing form again.
+      </div>
+    `;
+    setReady();
+  };
+
+  if (selectedModule === 'cars' && params.get('preview') === '1') {
+    const title = params.get('title') || 'Car listing';
+    const city = params.get('city') || '';
+    const price = params.get('price') || '$0';
+    const image = params.get('image') || '/finder/assets/img/placeholders/preview-square.svg';
+    const year = params.get('year') || '';
+    const mileage = params.get('mileage') || '';
+    const fuelType = params.get('fuel_type') || '';
+    const transmission = params.get('transmission') || '';
+
+    renderEntry({
+      module: 'cars',
+      title,
+      excerpt: '',
+      price,
+      rating: 0,
+      reviews_count: 0,
+      image_url: image,
+      images: [],
+      city: { name: city },
+      details: {
+        car: {
+          year,
+          mileage,
+          fuel_type: fuelType,
+          transmission,
+        },
+      },
+    }, []);
+    return;
+  }
+
+  if (!params.get('slug') && selectedModule !== 'restaurants') {
+    showNoPreview();
+    return;
+  }
+
+  if (selectedModule === 'restaurants' && !params.get('slug')) {
+    setReady();
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="py-5 text-center text-body-secondary">
+      <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+      Loading listing details...
+    </div>
+  `;
+
+  const apiQuery = new URLSearchParams({ module: selectedModule });
+  if (params.get('slug')) apiQuery.set('slug', params.get('slug'));
+
+  fetch(`/api/monaclick/entry?${apiQuery.toString()}`)
+    .then((res) => {
+      if (!res.ok) throw new Error('Entry API failed');
+      return res.json();
+    })
+    .then((payload) => {
+      const item = payload?.data;
+      const related = Array.isArray(payload?.related) ? payload.related : [];
+      if (!item) throw new Error('No entry payload');
+      renderEntry(item, related);
+    })
+    .catch(() => {
+      container.innerHTML = `
+        <div class="alert alert-danger mb-0">
+          Unable to load listing details.
+        </div>
+      `;
+      setReady();
+    });
+})();
