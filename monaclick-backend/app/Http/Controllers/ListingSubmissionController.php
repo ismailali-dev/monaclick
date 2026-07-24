@@ -494,6 +494,7 @@ class ListingSubmissionController extends Controller
                 if (! $path) {
                     continue;
                 }
+                
                 $stored[] = $path;
                 ListingImage::query()->create([
                     'listing_id' => $listing->id,
