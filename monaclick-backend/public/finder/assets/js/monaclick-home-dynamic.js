@@ -617,10 +617,11 @@
   const syncPrice = (card, item) => {
     if (!item.price) return;
 
-    const priceRegex = /(\$|EUR|GBP|PKR|AED)|\/mo|\/month|\/day|k\b|m\b|\d{2,}/i;
+    const priceRegex = /(\$|EUR|GBP|PKR|AED)|\/mo|\/month|\/day|\d(?:\.\d+)?\s*[km]\b|\d{2,}/i;
     const likelyNode = Array.from(
       card.querySelectorAll('.h4, .h5, .h6, h4, h5, h6, .fw-semibold, .text-info, .text-warning')
     ).find((node) => {
+      if (node.querySelector('a')) return false;
       const text = (node.textContent || '').trim();
       return text.length > 0 && text.length < 40 && priceRegex.test(text);
     });
@@ -1020,6 +1021,14 @@
         if (titleNode) {
           titleNode.textContent = item.title;
           titleNode.setAttribute('href', entryHref);
+        }
+
+        const bookButton = Array.from(card.querySelectorAll('button')).find(
+          (button) => (button.textContent || '').trim().toLowerCase() === 'book now'
+        );
+        if (bookButton) {
+          bookButton.onclick = () => window.location.assign(entryHref);
+          bookButton.setAttribute('aria-label', 'Book ' + (item.title || 'contractor'));
         }
 
         card.style.cursor = 'pointer';

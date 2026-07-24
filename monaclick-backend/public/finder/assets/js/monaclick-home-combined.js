@@ -1,5 +1,5 @@
 (() => {
-  const CACHE_KEY = 'monaclick.combined.home.cache.v7';
+  const CACHE_KEY = 'monaclick.combined.home.cache.v8';
   const CACHE_TTL_MS = 10 * 60 * 1000;
   const swipers = {};
 
@@ -315,7 +315,7 @@
             <span class="badge text-bg-secondary mb-2">For ${item.price?.includes('/mo') ? 'rent' : 'sale'}</span>
             <h3 class="h5 mb-1">${escapeHtml(item.price || 'Price on request')}</h3>
             <a class="stretched-link text-body text-decoration-none" href="${entryUrl(item)}">${escapeHtml(item.title)}</a>
-            <div class="fs-sm text-body-secondary mt-2">${escapeHtml(item.city?.name || 'City not set')}</div>
+            <div class="listing-card-location fs-sm text-body-secondary mt-2">${escapeHtml(item.city?.name || 'City not set')}</div>
           </div>
         </article>
       </div>
@@ -600,14 +600,23 @@
   };
 
   const renderAll = (datasets) => {
-    renderRealEstate(datasets.realEstate || []);
-    renderContractorNear(datasets.contractorsPopular || []);
-    renderCars(datasets.cars || []);
-    renderContractorHome(datasets.contractorsLatest || []);
-    renderRestaurantCities(datasets.restaurants || []);
-    renderContractorCategories(datasets.contractorCategories || []);
-    syncCombinedCarActionStates();
-    initAllSwipers();
+    const safely = (render) => {
+      try {
+        render();
+      } catch (error) {
+        console.error('Homepage section failed to render:', error);
+      }
+    };
+
+    // Render this first so an unrelated section cannot leave Browse Pros empty.
+    safely(() => renderContractorCategories(datasets.contractorCategories || []));
+    safely(() => renderRealEstate(datasets.realEstate || []));
+    safely(() => renderContractorNear(datasets.contractorsPopular || []));
+    safely(() => renderCars(datasets.cars || []));
+    safely(() => renderContractorHome(datasets.contractorsLatest || []));
+    safely(() => renderRestaurantCities(datasets.restaurants || []));
+    safely(() => syncCombinedCarActionStates());
+    safely(() => initAllSwipers());
   };
 
   const bootstrapPage = async () => {
@@ -621,12 +630,18 @@
     }
 
     try {
-      const [realEstate, contractorPayload, cars, restaurants] = await Promise.all([
+      const results = await Promise.allSettled([
         fetchListings('real-estate', { per_page: '6' }),
         fetchListingsPayload('contractors', { per_page: '12', sort: 'latest' }),
         fetchListings('cars', { per_page: '8', sort: 'latest' }),
         fetchListings('restaurants', { per_page: '8' }),
       ]);
+      const arrayValueOrEmpty = (result) =>
+        result.status === 'fulfilled' && Array.isArray(result.value) ? result.value : [];
+      const realEstate = arrayValueOrEmpty(results[0]);
+      const contractorPayload = results[1].status === 'fulfilled' ? results[1].value : {};
+      const cars = arrayValueOrEmpty(results[2]);
+      const restaurants = arrayValueOrEmpty(results[3]);
 
       const contractors = Array.isArray(contractorPayload?.data) ? contractorPayload.data : [];
       const contractorCategories = Array.isArray(contractorPayload?.filters?.categories) ? contractorPayload.filters.categories : [];

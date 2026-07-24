@@ -479,25 +479,25 @@ class ListingSubmissionController extends Controller
             if (! is_array($files)) {
                 $files = [$files];
             }
-              $stored = [];
-              foreach ($files as $idx => $file) {
-                  if (! $file) {
-                      continue;
-                  }
-                  if (! ($file instanceof \Illuminate\Http\UploadedFile)) {
-                      continue;
-                  }
-                  if (! $this->uploadedImageMeetsMinimumSize($file)) {
-                      return redirect('/add-property-photos?error=image-too-small&edit=' . $listing->id);
-                  }
-                  $path = $this->storePublicUpload($file, 'listings/properties');
-                  if (! $path) {
-                      continue;
-                  }
-                  $stored[] = $path;
-                  ListingImage::query()->create([
-                      'listing_id' => $listing->id,
-                      'image_path' => $path,
+            $stored = [];
+            foreach ($files as $idx => $file) {
+                if (! $file) {
+                    continue;
+                }
+                if (! ($file instanceof \Illuminate\Http\UploadedFile)) {
+                    continue;
+                }
+                if (! $this->uploadedImageMeetsMinimumSize($file)) {
+                    return redirect('/add-property-photos?error=image-too-small&edit=' . $listing->id);
+                }
+                $path = $this->storePublicUpload($file, 'listings/properties');
+                if (! $path) {
+                    continue;
+                }
+                $stored[] = $path;
+                ListingImage::query()->create([
+                    'listing_id' => $listing->id,
+                    'image_path' => $path,
                     'sort_order' => (int) $idx,
                     'is_cover' => $idx === 0,
                 ]);
@@ -552,7 +552,8 @@ class ListingSubmissionController extends Controller
             $payload,
             $status,
             $nextPath,
-            $editListing
+            $editListing,
+            $request
         )) {
             return $validationRedirect;
         }
@@ -871,21 +872,21 @@ class ListingSubmissionController extends Controller
             $listing->images()->delete();
             $stored = [];
             $sort = 0;
-              foreach ($files as $file) {
-                  if (! ($file instanceof \Illuminate\Http\UploadedFile) || ! $file->isValid()) {
-                      continue;
-                  }
-                  if (! $this->uploadedImageMeetsMinimumSize($file)) {
-                      return redirect('/add-contractor-project?error=image-too-small&edit=' . $listing->id);
-                  }
-                  $path = $this->storePublicUpload($file, 'listings/contractors/gallery');
-                  if (! $path) {
-                      continue;
-                  }
-                  $stored[] = $path;
-                  ListingImage::query()->create([
-                      'listing_id' => $listing->id,
-                      'image_path' => $path,
+            foreach ($files as $file) {
+                if (! ($file instanceof \Illuminate\Http\UploadedFile) || ! $file->isValid()) {
+                    continue;
+                }
+                if (! $this->uploadedImageMeetsMinimumSize($file)) {
+                    return redirect('/add-contractor-project?error=image-too-small&edit=' . $listing->id);
+                }
+                $path = $this->storePublicUpload($file, 'listings/contractors/gallery');
+                if (! $path) {
+                    continue;
+                }
+                $stored[] = $path;
+                ListingImage::query()->create([
+                    'listing_id' => $listing->id,
+                    'image_path' => $path,
                     'sort_order' => $sort,
                     'is_cover' => $sort === 0,
                 ]);
@@ -1193,16 +1194,16 @@ class ListingSubmissionController extends Controller
             $listingData['price_amount'] = $priceAmount && $priceAmount > 0 ? $priceAmount : null;
         }
 
-          $uploadedImagePath = null;
-          if ($request->hasFile('cover_photo')) {
-              $cover = $request->file('cover_photo');
-              if ($cover instanceof \Illuminate\Http\UploadedFile && $cover->isValid()) {
-                  if (! $this->uploadedImageMeetsMinimumSize($cover)) {
-                      return redirect('/add-restaurant?error=image-too-small' . ($editListing ? '&edit=' . $editListing->id : ''));
-                  }
-                  $uploadedImagePath = $this->storePublicUpload($cover, 'listings/restaurants');
-              }
-          }
+        $uploadedImagePath = null;
+        if ($request->hasFile('cover_photo')) {
+            $cover = $request->file('cover_photo');
+            if ($cover instanceof \Illuminate\Http\UploadedFile && $cover->isValid()) {
+                if (! $this->uploadedImageMeetsMinimumSize($cover)) {
+                    return redirect('/add-restaurant?error=image-too-small' . ($editListing ? '&edit=' . $editListing->id : ''));
+                }
+                $uploadedImagePath = $this->storePublicUpload($cover, 'listings/restaurants');
+            }
+        }
 
         if ($editListing) {
             $listingData['slug'] = $this->makeUniqueSlug($title, 'restaurant-listing', $editListing->id);
@@ -1226,21 +1227,21 @@ class ListingSubmissionController extends Controller
             $hasExistingImages = $listing->images()->exists();
             $sort = (int) $listing->images()->max('sort_order');
             $sort = $sort > 0 ? $sort + 1 : 0;
-              foreach ($files as $file) {
-                  if (! ($file instanceof \Illuminate\Http\UploadedFile) || ! $file->isValid()) {
-                      continue;
-                  }
-                  if (! $this->uploadedImageMeetsMinimumSize($file)) {
-                      return redirect('/add-restaurant?error=image-too-small' . ($editListing ? '&edit=' . $editListing->id : ''));
-                  }
-                  $path = $this->storePublicUpload($file, 'listings/restaurants/gallery');
-                  if (! $path) {
-                      continue;
-                  }
-                  ListingImage::query()->create([
-                      'listing_id' => $listing->id,
-                      'image_path' => $path,
-                      'sort_order' => $sort,
+            foreach ($files as $file) {
+                if (! ($file instanceof \Illuminate\Http\UploadedFile) || ! $file->isValid()) {
+                    continue;
+                }
+                if (! $this->uploadedImageMeetsMinimumSize($file)) {
+                    return redirect('/add-restaurant?error=image-too-small' . ($editListing ? '&edit=' . $editListing->id : ''));
+                }
+                $path = $this->storePublicUpload($file, 'listings/restaurants/gallery');
+                if (! $path) {
+                    continue;
+                }
+                ListingImage::query()->create([
+                    'listing_id' => $listing->id,
+                    'image_path' => $path,
+                    'sort_order' => $sort,
                     'is_cover' => $sort === 0 && ! $hasExistingImages,
                 ]);
                 if ($sort === 0) {
@@ -1450,12 +1451,13 @@ class ListingSubmissionController extends Controller
     /**
      * @param array<string, mixed> $wizardData
      */
-    private function validateContractorWizardFlow(array $wizardData, string $status, string $nextPath, ?Listing $editListing = null): ?RedirectResponse
+    private function validateContractorWizardFlow(array $wizardData, string $status, string $nextPath, ?Listing $editListing = null, ?Request $request = null): ?RedirectResponse
     {
         $editId = $editListing?->id;
         $isPublishing = $status === 'published';
         $needsLocation = $isPublishing || str_starts_with($nextPath, '/add-contractor-services');
         $needsServices = $isPublishing || str_starts_with($nextPath, '/add-contractor-profile');
+        $needsProfile = $isPublishing || str_starts_with($nextPath, '/add-contractor-price-hours');
         $needsPriceHours = $isPublishing || str_starts_with($nextPath, '/add-contractor-project');
         $needsProject = $isPublishing || str_starts_with($nextPath, '/add-contractor-promotion');
 
@@ -1542,6 +1544,15 @@ class ListingSubmissionController extends Controller
             }
         }
 
+        if ($needsProfile) {
+            $about = $this->firstNonEmpty($wizardData, ['about', 'description']);
+            if ($about === '' && $editListing) {
+                $about = trim((string) ($editListing->description ?: $editListing->excerpt));
+            }
+            if (mb_strlen($about) < 30) {
+                return $this->redirectContractorWizardStep('/add-contractor-profile', 'missing-profile', $editId);
+            }
+        }
         if ($needsPriceHours) {
             $price = $this->firstNonEmpty($wizardData, ['price']);
             if ($price === '') {
@@ -1571,6 +1582,7 @@ class ListingSubmissionController extends Controller
                         if (! is_array($row) || empty($row['enabled'])) {
                             continue;
                         }
+                        $hasEnabledHours = true;
                         if (trim((string) ($row['from'] ?? '')) === '' || trim((string) ($row['to'] ?? '')) === '') {
                             $hasValidHours = false;
                             break;
@@ -1579,7 +1591,7 @@ class ListingSubmissionController extends Controller
                 }
             }
 
-            if ($price === '' || ! $hasValidHours) {
+            if ($price === '' || ! $hasEnabledHours || ! $hasValidHours) {
                 return $this->redirectContractorWizardStep('/add-contractor-price-hours', 'missing-price-hours', $editId);
             }
         }
@@ -1598,7 +1610,10 @@ class ListingSubmissionController extends Controller
                 $projectPrice = $existingPrice;
             }
 
-            if ($projectName === '' || $projectDescription === '' || $projectPrice === '') {
+            $hasProjectMedia = ($request?->hasFile('photos') ?? false)
+                || ($editListing && $editListing->images()->exists());
+
+            if ($projectName === '' || $projectDescription === '' || $projectPrice === '' || ! $hasProjectMedia) {
                 return $this->redirectContractorWizardStep('/add-contractor-project', 'missing-project', $editId);
             }
         }

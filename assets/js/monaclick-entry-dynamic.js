@@ -105,7 +105,14 @@
 
     const values = [...base, ...carWizard, ...restaurantServices]
       .map((f) => String(f ?? '').trim())
-      .filter(Boolean);
+      .filter((f) =>
+        !!f
+        && !/^promo-package:/i.test(f)
+        && !/^promo-service:/i.test(f)
+        && !/^contractor-address:/i.test(f)
+        && !/^contractor-zip:/i.test(f)
+        && !/^contractor-state:/i.test(f)
+      );
 
     const seen = new Set();
     return values.filter((f) => {
@@ -129,7 +136,7 @@
     if (!badges) return '';
 
     return `
-      <section class="pb-sm-2 pb-lg-3 mb-5">
+      <section data-mc-features="1" class="pb-sm-2 pb-lg-3 mb-5">
         <h2 class="h4 mb-3">Features</h2>
         <div class="d-flex flex-wrap gap-2">${badges}</div>
       </section>
@@ -149,8 +156,7 @@
     const detailsSection = detailsHeading ? detailsHeading.closest('section') : null;
     if (!detailsSection) return;
 
-    const html = renderFeatures(item)
-      .replace('<section', '<section data-mc-features="1"');
+    const html = renderFeatures(item);
     if (!html.trim()) return;
 
     detailsSection.insertAdjacentHTML('afterend', html);
@@ -356,8 +362,7 @@
       </div>
     `;
 
-    ensureFeaturesAfterDetails(item);
-
+    // Features are already included by renderFeatures(item) in the entry markup.
     if (window.GLightbox) {
       try {
         window.GLightbox({ selector: '[data-glightbox]' });

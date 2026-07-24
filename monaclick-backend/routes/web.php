@@ -112,6 +112,17 @@ $serve = static function (string $file) use ($formatUsPhoneForDisplay) {
         $html
     );
 
+    // Contractor onboarding must always load its validation guard, even when an older
+    // static template is present in the shared-hosting document root.
+    if (
+        str_starts_with($currentRequestPath, '/add-contractor')
+        && ! str_contains($html, 'monaclick-contractor-wizard.js')
+    ) {
+        $wizardScript = '<script src="/finder/assets/js/monaclick-contractor-wizard.js"></script>';
+        $html = str_contains($html, '</body>')
+            ? str_replace('</body>', $wizardScript . '</body>', $html)
+            : $html . $wizardScript;
+    }
     // Cache-bust frequently updated assets without touching every template file.
     $assetVersions = [
         '/finder/assets/js/monaclick-global-footer.js' => [
@@ -133,10 +144,6 @@ $serve = static function (string $file) use ($formatUsPhoneForDisplay) {
         '/finder/assets/js/monaclick-entry-features-patch.js' => [
             public_path('finder/assets/js/monaclick-entry-features-patch.js'),
             base_path('../finder/assets/js/monaclick-entry-features-patch.js'),
-        ],
-        '/finder/assets/js/monaclick-home-dynamic.js' => [
-            public_path('finder/assets/js/monaclick-home-dynamic.js'),
-            base_path('../finder/assets/js/monaclick-home-dynamic.js'),
         ],
         '/finder/assets/js/monaclick-contractor-wizard.js' => [
             public_path('finder/assets/js/monaclick-contractor-wizard.js'),
@@ -161,6 +168,16 @@ $serve = static function (string $file) use ($formatUsPhoneForDisplay) {
     ];
     foreach ($assetVersions as $webPath => $diskPath) {
         $candidates = is_array($diskPath) ? $diskPath : [$diskPath];
+
+        // On shared hosting the web document root can be one level above Laravel's
+        // public directory. Version the file the browser actually receives.
+        $documentRoot = rtrim((string) request()->server('DOCUMENT_ROOT', ''), '/\\');
+        if ($documentRoot !== '') {
+            $documentRootAsset = $documentRoot . DIRECTORY_SEPARATOR
+                . str_replace('/', DIRECTORY_SEPARATOR, ltrim($webPath, '/'));
+            array_unshift($candidates, $documentRootAsset);
+        }
+
         $resolved = null;
         foreach ($candidates as $candidate) {
             if (is_string($candidate) && file_exists($candidate)) {

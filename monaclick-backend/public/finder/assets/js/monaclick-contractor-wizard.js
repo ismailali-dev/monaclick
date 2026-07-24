@@ -1119,6 +1119,41 @@
     } catch (_) {}
   };
 
+  const showValidationError = (message, field = null) => {
+    let errorBox = document.querySelector('[data-mc-wizard-validation-error]');
+    if (!errorBox) {
+      errorBox = document.createElement('div');
+      errorBox.className = 'alert alert-danger d-flex align-items-start gap-2 mb-4';
+      errorBox.setAttribute('role', 'alert');
+      errorBox.dataset.mcWizardValidationError = '1';
+      const heading = document.querySelector('main h1, main .h3');
+      const anchor = heading?.parentElement || document.querySelector('main .container') || document.querySelector('main');
+      anchor?.insertBefore(errorBox, anchor.firstChild);
+    }
+    errorBox.innerHTML = `<i class="fi-alert-triangle fs-lg mt-1"></i><div><strong>Please correct this field:</strong><br>${String(message || 'Required information is missing.')}</div>`;
+    errorBox.classList.remove('d-none');
+    if (field?.classList) {
+      field.classList.add('is-invalid');
+      field.setAttribute('aria-invalid', 'true');
+    }
+    errorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    focusField(field);
+    return false;
+  };
+
+  const showRedirectedValidationError = () => {
+    const code = new URLSearchParams(window.location.search).get('error');
+    if (!code) return;
+    const messages = {
+      'missing-location': 'Complete the state, city, ZIP code, address, and add at least one service area.',
+      'missing-services': 'Select a category and at least one service.',
+      'missing-profile': 'Enter at least 30 characters about you and your business.',
+      'missing-price-hours': 'Enter a price, select a pricing period, and add complete hours for at least one working day.',
+      'missing-project': 'Enter the project name, description, price, and upload at least one project photo or video.',
+      'image-too-small': `Images must be at least ${MIN_IMAGE_WIDTH}x${MIN_IMAGE_HEIGHT}px.`,
+    };
+    showValidationError(messages[code] || 'Some required information is missing or invalid. Please review this step.');
+  };
   const validateNativeRequiredFields = () => {
     const fields = Array.from(document.querySelectorAll('main input[required], main select[required], main textarea[required]'));
     for (const field of fields) {
@@ -1191,11 +1226,17 @@
       return !!String(categoryField?.value || '').trim() && services.length > 0;
     }
 
+    if (currentPath === '/add-contractor-profile') {
+      const aboutField = findControl('about');
+      return String(aboutField?.value || '').trim().length >= 30;
+    }
+
     if (currentPath === '/add-contractor-price-hours') {
       const priceField = findControl('price');
-      if (!String(priceField?.value || '').trim()) return false;
+      const periodField = document.querySelector('select[aria-label="Select per period"]');
+      if (!String(priceField?.value || '').trim() || !String(periodField?.value || '').trim()) return false;
       const enabledHours = getEnabledBusinessHours().filter((row) => row.enabled);
-      return !enabledHours.some((row) => !row.from || !row.to);
+      return enabledHours.length > 0 && !enabledHours.some((row) => !row.from || !row.to);
     }
 
     if (currentPath === '/add-contractor-project') {
@@ -1223,29 +1264,19 @@
       const areas = sanitizeServiceAreaValues(Array.from(readState().areas || []));
 
       if (!String(stateField?.value || '').trim()) {
-        alert('State is required.');
-        focusField(stateField);
-        return false;
+        return showValidationError('State is required.', stateField);
       }
       if (!String(cityField?.value || '').trim()) {
-        alert('City is required.');
-        focusField(cityField);
-        return false;
+        return showValidationError('City is required.', cityField);
       }
       if (!String(addressField?.value || '').trim()) {
-        alert('Address line is required.');
-        focusField(addressField);
-        return false;
+        return showValidationError('Address line is required.', addressField);
       }
       if (!String(zipField?.value || '').trim()) {
-        alert('Zip code is required.');
-        focusField(zipField);
-        return false;
+        return showValidationError('Zip code is required.', zipField);
       }
       if (!areas.length) {
-        alert('Please add at least one service area.');
-        focusField(areaField);
-        return false;
+        return showValidationError('Please add at least one service area.', areaField);
       }
       return true;
     }
@@ -1254,31 +1285,39 @@
       const categoryField = findControl('project-type');
       const services = getSelectedServiceLabels();
       if (!String(categoryField?.value || '').trim()) {
-        alert('Please select a category.');
-        focusField(categoryField);
-        return false;
+        return showValidationError('Please select a category.', categoryField);
       }
       if (!services.length) {
-        alert('Please select at least one service.');
-        focusField(categoryField);
-        return false;
+        return showValidationError('Please select at least one service.', categoryField);
+      }
+      return true;
+    }
+
+    if (currentPath === '/add-contractor-profile') {
+      const aboutField = findControl('about');
+      const about = String(aboutField?.value || '').trim();
+      if (about.length < 30) {
+        return showValidationError('Please enter at least 30 characters about you and your business.', aboutField);
       }
       return true;
     }
 
     if (currentPath === '/add-contractor-price-hours') {
       const priceField = findControl('price');
+      const periodField = document.querySelector('select[aria-label="Select per period"]');
       if (!String(priceField?.value || '').trim()) {
-        alert('Price is required.');
-        focusField(priceField);
-        return false;
+        return showValidationError('Price is required.', priceField);
+      }
+      if (!String(periodField?.value || '').trim()) {
+        return showValidationError('Please select a pricing period.', periodField);
       }
       const enabledHours = getEnabledBusinessHours().filter((row) => row.enabled);
+      if (!enabledHours.length) {
+        return showValidationError('Please select at least one working day.', document.getElementById('monday'));
+      }
       const invalidHour = enabledHours.find((row) => !row.from || !row.to);
       if (invalidHour) {
-        alert('Please complete both from and to times for every selected day.');
-        focusField(document.getElementById(`${invalidHour.day}From`) || document.getElementById(`${invalidHour.day}`));
-        return false;
+        return showValidationError('Please complete both from and to times for every selected day.', document.getElementById(`${invalidHour.day}From`) || document.getElementById(`${invalidHour.day}`));
       }
       return true;
     }
@@ -1288,24 +1327,16 @@
       const projectDescription = findControl('project-description');
       const projectPrice = findControl('price');
       if (!String(projectName?.value || '').trim()) {
-        alert('Project name is required.');
-        focusField(projectName);
-        return false;
+        return showValidationError('Project name is required.', projectName);
       }
       if (!String(projectDescription?.value || '').trim()) {
-        alert('Project description is required.');
-        focusField(projectDescription);
-        return false;
+        return showValidationError('Project description is required.', projectDescription);
       }
       if (!String(projectPrice?.value || '').trim()) {
-        alert('Approximate price is required.');
-        focusField(projectPrice);
-        return false;
+        return showValidationError('Approximate price is required.', projectPrice);
       }
       if (!hasProjectGalleryMedia()) {
-        alert('Please add at least one project photo or video.');
-        focusField(document.querySelector('.row.row-cols-2.row-cols-sm-3.g-2'));
-        return false;
+        return showValidationError('Please add at least one project photo or video.', document.querySelector('.row.row-cols-2.row-cols-sm-3.g-2'));
       }
       return true;
     }
@@ -1528,6 +1559,7 @@
           event.stopImmediatePropagation();
           const text = (btn.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
           if (text.includes('save project and become a pro')) {
+            if (!validateCurrentStep()) return;
             submitListing(true, { nextPath: `${promotionUrl.pathname}${promotionUrl.search}` });
             return;
           }
@@ -1776,10 +1808,22 @@
     safe(bindProfilePhoto);
     safe(bindProjectGallery);
     safe(fixWorkingHoursLayout);
+    safe(showRedirectedValidationError);
 
     document.querySelectorAll('input, select, textarea').forEach((el) => {
-      el.addEventListener('input', saveControls);
-      el.addEventListener('change', saveControls);
+      const clearFieldError = () => {
+        el.classList.remove('is-invalid');
+        el.removeAttribute('aria-invalid');
+        document.querySelector('[data-mc-wizard-validation-error]')?.classList.add('d-none');
+      };
+      el.addEventListener('input', () => {
+        clearFieldError();
+        saveControls();
+      });
+      el.addEventListener('change', () => {
+        clearFieldError();
+        saveControls();
+      });
     });
 
     loadProfileImage().then(() => {

@@ -1372,8 +1372,7 @@
       </div>
     `;
 
-    ensureFeaturesAfterDetails(item);
-
+    // Features are already included by renderFeatures(item) in the entry markup.
     if (window.GLightbox) {
       try {
         ensureEntryLightboxStyles();

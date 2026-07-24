@@ -114,7 +114,7 @@
             <span class="badge text-bg-secondary mb-2">For ${item.price?.includes('/mo') ? 'rent' : 'sale'}</span>
             <h3 class="h5 mb-1">${escapeHtml(item.price || 'Price on request')}</h3>
             <a class="stretched-link text-body text-decoration-none" href="${entryUrl(item)}">${escapeHtml(item.title)}</a>
-            <div class="fs-sm text-body-secondary mt-2">${escapeHtml(item.city?.name || 'City not set')}</div>
+            <div class="listing-card-location fs-sm text-body-secondary mt-2">${escapeHtml(item.city?.name || 'City not set')}</div>
           </div>
         </article>
       </div>

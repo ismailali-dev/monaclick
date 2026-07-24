@@ -162,7 +162,7 @@
             <div><img src="/finder/assets/img/payment-methods/google-pay-dark-mode.svg" alt="Google Pay"></div>
             <div><img src="/finder/assets/img/payment-methods/apple-pay-dark-mode.svg" alt="Apple Pay"></div>
           </div>
-          <p class="text-body-secondary fs-sm text-center text-md-start mb-0 me-md-4 order-md-1">&copy; All rights reserved. Developed by <span class="text-body fw-medium">US Logo and Web</span></p>
+          <p class="text-body-secondary fs-sm text-center text-md-start mb-0 me-md-4 order-md-1">&copy; All rights reserved. Developed by <a class="text-body fw-medium text-decoration-none hover-effect-underline" href="https://uslogoandweb.com/" target="_blank" rel="noopener noreferrer">US Logo and Web</a></p>
         </div>
       </div>
     </footer>
