@@ -1,4 +1,4 @@
-(() => {
+﻿(() => {
   const normalizedPath = window.location.pathname.replace(/\/+$/, '') || '/';
   const moduleByPath = {
     '/': 'contractors',
@@ -46,6 +46,13 @@
     category: new URLSearchParams(window.location.search).get('category') || '',
   };
   let availableFilters = { categories: [], cities: [] };
+  const escapeHtml = (value) =>
+    String(value ?? '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
 
   const normalize = (value) =>
     String(value || '')
@@ -357,7 +364,7 @@
     mileage: item?.details?.car?.mileage ? `${item.details.car.mileage} mi` : '',
     fuel_type: item?.details?.car?.fuel_type || '',
     transmission: item?.details?.car?.transmission || '',
-    detail_url: entryUrl(item),
+    detail_url: detailUrl(item),
   });
 
   const handleHomeCarAction = (button) => {
@@ -421,6 +428,35 @@
     });
   };
 
+  const initializeStaticHomeCarActions = () => {
+    if (selectedModule !== 'cars') return;
+    document.querySelectorAll('main article, main .card').forEach((card, cardIndex) => {
+      const title = String(card.querySelector('h3, h4, h5, h6')?.textContent || `Car ${cardIndex + 1}`).trim();
+      const detailLink = card.querySelector('a[href*="entry"], a[href*="single-entry"]');
+      const href = detailLink?.getAttribute('href') || '';
+      const hrefSlug = new URL(href || '/entry/cars', window.location.origin).searchParams.get('slug') || '';
+      const slug = hrefSlug || normalize(title) || `car-${cardIndex + 1}`;
+      const payload = {
+        slug,
+        module: 'cars',
+        title,
+        image_url: card.querySelector('img')?.getAttribute('src') || '/finder/assets/img/placeholders/preview-square.svg',
+        detail_url: href || `/entry/cars?slug=${encodeURIComponent(slug)}`,
+      };
+
+      card.querySelectorAll('button[aria-label]').forEach((button) => {
+        if (button.hasAttribute('data-mc-home-car-action')) return;
+        const label = String(button.getAttribute('aria-label') || '').toLowerCase();
+        const action = label.includes('wishlist') ? 'favorite' : label.includes('notify') ? 'notify' : label.includes('compare') ? 'compare' : '';
+        if (!action) return;
+        button.setAttribute('data-mc-home-car-action', action);
+        button.setAttribute('data-mc-slug', slug);
+        button.setAttribute('data-mc-title', title);
+        button.setAttribute('data-mc-item', JSON.stringify(payload));
+        button.classList.add('position-relative', 'z-2');
+      });
+    });
+  };
   const routeForModule = (module) => ({
     contractors: '/contractors',
     'real-estate': '/real-estate',
@@ -722,7 +758,7 @@
           </div>
         </div>
         <h3 class="h6 mb-2">
-          <a class="hover-effect-underline stretched-link me-1 text-decoration-none" href="${entryUrl(item)}">${escapeHtml(item.title)}</a>
+          <a class="hover-effect-underline stretched-link me-1 text-decoration-none" href="${detailUrl(item)}">${escapeHtml(item.title)}</a>
           ${item?.details?.car?.year ? `<span class="fs-xs fw-normal text-body-secondary">(${escapeHtml(item.details.car.year)})</span>` : ''}
         </h3>
         <div class="h6 mb-0">${escapeHtml(item.price || '')}</div>
@@ -1096,6 +1132,7 @@
   safeRun(wireViewAllLinks);
   safeRun(wireNonDeadLinks);
   safeRun(normalizeListingsDropdown);
+  safeRun(initializeStaticHomeCarActions);
   safeRun(bindHomeCarActions);
   safeRun(() => syncHomeCarActionStates());
   safeRun(() => syncStateLinks(persistedState));

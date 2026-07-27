@@ -1,4 +1,4 @@
-(() => {
+﻿(() => {
   const normalizedPath = window.location.pathname.replace(/\/+$/, '') || '/';
   const moduleByPath = {
     '/': 'contractors',
@@ -9,8 +9,8 @@
     '/home-real-estate.html': 'real-estate',
     '/cars': 'cars',
     '/home-cars.html': 'cars',
-    '/events': 'events',
-    '/home-events.html': 'events',
+    '/restaurants': 'restaurants',
+    '/home-restaurants.html': 'restaurants',
   };
 
   const inferModuleFromPath = (path) => {
@@ -19,7 +19,7 @@
     if (p.includes('real-estate')) return 'real-estate';
     if (p.includes('contractors')) return 'contractors';
     if (p.includes('cars')) return 'cars';
-    if (p.includes('events')) return 'events';
+    if (p.includes('restaurants')) return 'restaurants';
     return '';
   };
 
@@ -31,14 +31,28 @@
     contractors: 'Contractors',
     'real-estate': 'Real Estate',
     cars: 'Cars',
-    events: 'Events',
+    restaurants: 'Restaurants',
   }[selectedModule] || 'Listings';
+  const carActionsStorage = {
+    favorites: 'mc_related_favorites_v1',
+    favoriteItems: 'mc_related_favorite_items_v1',
+    alerts: 'mc_related_alerts_v1',
+    compare: 'mc_related_compare_v1',
+    compareItems: 'mc_related_compare_items_v1',
+  };
   const persistedState = {
     q: new URLSearchParams(window.location.search).get('q') || '',
     city: new URLSearchParams(window.location.search).get('city') || '',
     category: new URLSearchParams(window.location.search).get('category') || '',
   };
   let availableFilters = { categories: [], cities: [] };
+  const escapeHtml = (value) =>
+    String(value ?? '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
 
   const normalize = (value) =>
     String(value || '')
@@ -118,7 +132,7 @@
     if (clean === '/' || clean === '/contractors' || clean === '/listings' || clean === '/listings/contractors') return 'contractors';
     if (clean === '/real-estate' || clean === '/listings/real-estate') return 'real-estate';
     if (clean === '/cars' || clean === '/listings/cars') return 'cars';
-    if (clean === '/events' || clean === '/listings/events') return 'events';
+    if (clean === '/restaurants' || clean === '/listings/restaurants') return 'restaurants';
     return '';
   };
 
@@ -126,7 +140,7 @@
     const fullQs = stateToQueryString(state);
     const targets = Array.from(
       document.querySelectorAll(
-        'a[href="/"], a[href="/contractors"], a[href="/real-estate"], a[href="/cars"], a[href="/events"], a[href="/listings"], a[href^="/listings/"]'
+        'a[href="/"], a[href="/contractors"], a[href="/real-estate"], a[href="/cars"], a[href="/restaurants"], a[href="/listings"], a[href^="/listings/"]'
       )
     );
 
@@ -170,14 +184,6 @@
       { contains: 'popular categories', strategy: 'popular', slots: 6 },
       { contains: 'recent', strategy: 'latest', slots: 6 },
       { contains: 'latest', strategy: 'latest', slots: 6 },
-    ],
-    events: [
-      { contains: 'upcoming online events', strategy: 'latest', slots: 8 },
-      { contains: 'discover events near you', strategy: 'latest', slots: 5 },
-      { contains: 'featured events', strategy: 'latest', slots: 5 },
-      { contains: 'popular near you', strategy: 'popular', slots: 8 },
-      { contains: 'featured news', strategy: 'latest', slots: 6 },
-      { contains: 'top-rated app', strategy: 'popular', slots: 6 },
     ],
   };
 
@@ -267,18 +273,202 @@
     return `${basePath}${qs ? `?${qs}` : ''}`;
   };
 
+  const readStoredSlugs = (key) => {
+    try {
+      const parsed = JSON.parse(window.localStorage.getItem(key) || '[]');
+      return Array.isArray(parsed) ? parsed.map((value) => String(value || '').trim()).filter(Boolean) : [];
+    } catch (e) {
+      return [];
+    }
+  };
+
+  const writeStoredSlugs = (key, values) => {
+    try {
+      const unique = Array.from(new Set((values || []).map((value) => String(value || '').trim()).filter(Boolean)));
+      window.localStorage.setItem(key, JSON.stringify(unique));
+    } catch (e) {
+      // no-op
+    }
+  };
+
+  const readStoredMap = (key) => {
+    try {
+      const parsed = JSON.parse(window.localStorage.getItem(key) || '{}');
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+    } catch (e) {
+      return {};
+    }
+  };
+
+  const writeStoredMap = (key, value) => {
+    try {
+      window.localStorage.setItem(key, JSON.stringify(value || {}));
+    } catch (e) {
+      // no-op
+    }
+  };
+
+  const showCarActionToast = (message) => {
+    const id = 'mc-home-car-actions-toast';
+    let toast = document.getElementById(id);
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = id;
+      toast.style.cssText = 'position:fixed;right:20px;bottom:20px;z-index:1085;max-width:320px;background:#1f2937;color:#fff;padding:12px 14px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.2);font-size:14px;line-height:1.45;opacity:0;transform:translateY(8px);transition:opacity .18s ease, transform .18s ease;';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0)';
+    clearTimeout(showCarActionToast._timer);
+    showCarActionToast._timer = setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(8px)';
+    }, 1800);
+  };
+
+  const syncCarActionButtonState = (button, active) => {
+    if (!button) return;
+    button.dataset.active = active ? '1' : '0';
+    button.setAttribute('aria-pressed', active ? 'true' : 'false');
+    button.classList.toggle('btn-primary', active);
+    button.classList.toggle('btn-outline-secondary', !active);
+    button.classList.toggle('text-white', active);
+  };
+
+  const syncHomeCarActionStates = (scope = document) => {
+    const favorites = new Set(readStoredSlugs(carActionsStorage.favorites));
+    const alerts = new Set(readStoredSlugs(carActionsStorage.alerts));
+    const compare = new Set(readStoredSlugs(carActionsStorage.compare));
+
+    scope.querySelectorAll('[data-mc-home-car-action]').forEach((button) => {
+      const slug = String(button.getAttribute('data-mc-slug') || '').trim();
+      const action = String(button.getAttribute('data-mc-home-car-action') || '').trim();
+      const active = action === 'favorite'
+        ? favorites.has(slug)
+        : action === 'notify'
+          ? alerts.has(slug)
+          : compare.has(slug);
+      syncCarActionButtonState(button, active);
+    });
+  };
+
+  const carComparePayload = (item) => ({
+    slug: item?.slug || '',
+    module: item?.module || 'cars',
+    title: item?.title || '',
+    price: item?.price || '',
+    image_url: item?.image_url || '/finder/assets/img/placeholders/preview-square.svg',
+    city: item?.city?.name || '',
+    year: item?.details?.car?.year || '',
+    mileage: item?.details?.car?.mileage ? `${item.details.car.mileage} mi` : '',
+    fuel_type: item?.details?.car?.fuel_type || '',
+    transmission: item?.details?.car?.transmission || '',
+    detail_url: detailUrl(item),
+  });
+
+  const handleHomeCarAction = (button) => {
+    const slug = String(button.getAttribute('data-mc-slug') || '').trim();
+    const action = String(button.getAttribute('data-mc-home-car-action') || '').trim();
+    const title = String(button.getAttribute('data-mc-title') || 'Listing').trim();
+    const payloadRaw = button.getAttribute('data-mc-item') || '';
+    if (!slug || !action) return;
+
+    if (action === 'favorite') {
+      const slugs = readStoredSlugs(carActionsStorage.favorites);
+      const exists = slugs.includes(slug);
+      const next = exists ? slugs.filter((value) => value !== slug) : [...slugs, slug];
+      writeStoredSlugs(carActionsStorage.favorites, next);
+      const items = readStoredMap(carActionsStorage.favoriteItems);
+      if (exists) {
+        delete items[slug];
+      } else if (payloadRaw) {
+        try { items[slug] = JSON.parse(payloadRaw); } catch (e) {}
+      }
+      writeStoredMap(carActionsStorage.favoriteItems, items);
+      syncHomeCarActionStates();
+      showCarActionToast(exists ? `${title} removed from favorites.` : `${title} saved to favorites.`);
+      return;
+    }
+
+    if (action === 'notify') {
+      const slugs = readStoredSlugs(carActionsStorage.alerts);
+      const exists = slugs.includes(slug);
+      const next = exists ? slugs.filter((value) => value !== slug) : [...slugs, slug];
+      writeStoredSlugs(carActionsStorage.alerts, next);
+      syncHomeCarActionStates();
+      showCarActionToast(exists ? `Alerts turned off for ${title}.` : `Alerts turned on for ${title}.`);
+      return;
+    }
+
+    const slugs = readStoredSlugs(carActionsStorage.compare);
+    const exists = slugs.includes(slug);
+    const next = exists ? slugs.filter((value) => value !== slug) : [...slugs.filter((value) => value !== slug), slug].slice(-4);
+    const items = readStoredMap(carActionsStorage.compareItems);
+    if (exists) {
+      delete items[slug];
+    } else if (payloadRaw) {
+      try { items[slug] = JSON.parse(payloadRaw); } catch (e) {}
+    }
+    writeStoredSlugs(carActionsStorage.compare, next);
+    writeStoredMap(carActionsStorage.compareItems, items);
+    syncHomeCarActionStates();
+    showCarActionToast(exists ? `${title} removed from compare.` : `${title} added to compare.`);
+  };
+
+  const bindHomeCarActions = () => {
+    if (document.body.dataset.mcHomeCarActionsBound === '1') return;
+    document.body.dataset.mcHomeCarActionsBound = '1';
+    document.body.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-mc-home-car-action]');
+      if (!button) return;
+      event.preventDefault();
+      event.stopPropagation();
+      handleHomeCarAction(button);
+    });
+  };
+
+  const initializeStaticHomeCarActions = () => {
+    if (selectedModule !== 'cars') return;
+    document.querySelectorAll('main article, main .card').forEach((card, cardIndex) => {
+      const title = String(card.querySelector('h3, h4, h5, h6')?.textContent || `Car ${cardIndex + 1}`).trim();
+      const detailLink = card.querySelector('a[href*="entry"], a[href*="single-entry"]');
+      const href = detailLink?.getAttribute('href') || '';
+      const hrefSlug = new URL(href || '/entry/cars', window.location.origin).searchParams.get('slug') || '';
+      const slug = hrefSlug || normalize(title) || `car-${cardIndex + 1}`;
+      const payload = {
+        slug,
+        module: 'cars',
+        title,
+        image_url: card.querySelector('img')?.getAttribute('src') || '/finder/assets/img/placeholders/preview-square.svg',
+        detail_url: href || `/entry/cars?slug=${encodeURIComponent(slug)}`,
+      };
+
+      card.querySelectorAll('button[aria-label]').forEach((button) => {
+        if (button.hasAttribute('data-mc-home-car-action')) return;
+        const label = String(button.getAttribute('aria-label') || '').toLowerCase();
+        const action = label.includes('wishlist') ? 'favorite' : label.includes('notify') ? 'notify' : label.includes('compare') ? 'compare' : '';
+        if (!action) return;
+        button.setAttribute('data-mc-home-car-action', action);
+        button.setAttribute('data-mc-slug', slug);
+        button.setAttribute('data-mc-title', title);
+        button.setAttribute('data-mc-item', JSON.stringify(payload));
+        button.classList.add('position-relative', 'z-2');
+      });
+    });
+  };
   const routeForModule = (module) => ({
     contractors: '/contractors',
     'real-estate': '/real-estate',
     cars: '/cars',
-    events: '/events',
+    restaurants: '/restaurants',
   }[module] || '/');
 
   const listingsRouteForModule = (module) => ({
     contractors: '/listings/contractors',
     'real-estate': '/listings/real-estate',
     cars: '/listings/cars',
-    events: '/listings/events',
+    restaurants: '/listings/restaurants',
   }[module] || '/listings/contractors');
 
   const normalizeLegacyHref = (href) => {
@@ -291,16 +481,16 @@
       'home-contractors.html': '/contractors',
       'home-real-estate.html': '/real-estate',
       'home-cars.html': '/cars',
-      'home-events.html': '/events',
+      'home-restaurants.html': '/restaurants',
       'listings-contractors.html': '/listings/contractors',
       'listings-real-estate.html': '/listings/real-estate',
       'listings-grid-cars.html': '/listings/cars',
       'listings-list-cars.html': '/listings/cars',
-      'listings-events.html': '/listings/events',
+      'listings-restaurants.html': '/listings/restaurants',
       'single-entry-contractors.html': '/entry/contractors',
       'single-entry-real-estate.html': '/entry/real-estate',
       'single-entry-cars.html': '/entry/cars',
-      'single-entry-events.html': '/entry/events',
+      'single-entry-restaurants.html': '/entry/restaurants',
     };
 
     if (directMap[clean]) return directMap[clean];
@@ -318,7 +508,7 @@
     if (t.includes('contractor')) return '/contractors';
     if (t.includes('real estate')) return '/real-estate';
     if (t === 'cars' || t.includes('car ')) return '/cars';
-    if (t.includes('event')) return '/events';
+    if (t.includes('restaurant')) return '/restaurants';
     if (t.includes('sign in') || t.includes('log in') || t === 'login') return '/login';
     if (t.includes('join') || t.includes('register') || t.includes('sign up')) return '/register';
     if (t.includes('my account') || t.includes('dashboard')) return '/dashboard';
@@ -354,6 +544,26 @@
           link.setAttribute('href', buildFilterHref(listingsRouteForModule(selectedModule)));
         }
       }
+    });
+  };
+
+  const normalizeListingsDropdown = () => {
+    const moduleItems = [
+      { href: '/listings/contractors', label: 'Contractors' },
+      { href: '/listings/real-estate', label: 'Real Estate' },
+      { href: '/listings/cars', label: 'Cars' },
+      { href: '/listings/restaurants', label: 'Restaurants' },
+    ];
+
+    const listingToggles = Array.from(document.querySelectorAll('a.nav-link.dropdown-toggle'))
+      .filter((link) => (link.textContent || '').trim().toLowerCase() === 'listings');
+
+    listingToggles.forEach((toggle) => {
+      const menu = toggle.nextElementSibling;
+      if (!menu || !menu.classList.contains('dropdown-menu')) return;
+      menu.innerHTML = moduleItems
+        .map((item) => `<li><a class="dropdown-item" href="${item.href}">${item.label}</a></li>`)
+        .join('');
     });
   };
 
@@ -482,12 +692,89 @@
     }
   };
 
+  const syncCarBadges = (card, item) => {
+    const conditionRaw = String(item?.details?.car?.condition || '').toLowerCase();
+    const stock = conditionRaw.includes('used') ? 'Used' : (conditionRaw.includes('new') ? 'New' : '');
+    const features = Array.isArray(item?.features) ? item.features : [];
+    const isVerified = features.some((f) => String(f || '').toLowerCase().includes('verified'));
+    if (!stock && !isVerified) return;
+
+    const root = card.matches('article, .card') ? card : card.closest('article, .card') || card;
+    const img = root.querySelector('img');
+    if (!img) return;
+
+    let overlay = root.querySelector('.mc-car-badges');
+    if (!overlay) {
+      root.classList.add('position-relative');
+      overlay = document.createElement('div');
+      overlay.className = 'card-img-overlay mc-car-badges d-flex flex-column align-items-start gap-2 p-3';
+      overlay.style.pointerEvents = 'none';
+      img.insertAdjacentElement('afterend', overlay);
+    }
+
+    const badges = [];
+    if (isVerified) badges.push('<span class="badge text-bg-success">Verified</span>');
+    if (stock) badges.push(`<span class="badge text-bg-warning text-dark">${stock}</span>`);
+    overlay.innerHTML = badges.join('');
+  };
+
   const syncCardMeta = (card, item) => {
     syncCity(card, item);
     syncRating(card, item);
     syncPrice(card, item);
     if (selectedModule === 'events') syncEventDateTime(card, item);
+    if (selectedModule === 'cars') syncCarBadges(card, item);
   };
+
+  const renderCarCardMarkup = (item) => `
+    <article class="card h-100 hover-effect-scale bg-body-tertiary border-0">
+      <div class="card-img-top position-relative overflow-hidden">
+        ${(() => {
+          const badges = [];
+          const conditionRaw = String(item?.details?.car?.condition || '').toLowerCase();
+          const stock = conditionRaw.includes('used') ? 'Used' : (conditionRaw.includes('new') ? 'New' : '');
+          const features = Array.isArray(item?.features) ? item.features : [];
+          const isVerified = features.some((f) => String(f || '').toLowerCase().includes('verified'));
+          if (isVerified) badges.push('<span class="badge text-bg-info d-inline-flex align-items-center">Verified<i class="fi-shield ms-1"></i></span>');
+          if (stock) badges.push(`<span class="badge ${stock === 'New' ? 'text-bg-primary' : 'text-bg-warning'}">${escapeHtml(stock)}</span>`);
+          if (!badges.length) return '';
+          return `<div class="d-flex flex-column gap-2 align-items-start position-absolute top-0 start-0 z-1 pt-1 pt-sm-0 ps-1 ps-sm-0 mt-2 mt-sm-3 ms-2 ms-sm-3" style="pointer-events:none">${badges.join('')}</div>`;
+        })()}
+        <img class="card-img-top module-card-img" src="${escapeHtml(item.image_url || '/finder/assets/img/placeholders/preview-square.svg')}" alt="${escapeHtml(item.title)}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/finder/assets/img/placeholders/preview-square.svg';">
+      </div>
+      <div class="card-body pb-3">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="fs-xs text-body-secondary me-3">Recently added</div>
+          <div class="d-flex gap-2 position-relative z-2">
+            <button type="button" class="btn btn-icon btn-sm btn-outline-secondary animate-pulse rounded-circle" data-mc-home-car-action="favorite" data-mc-slug="${escapeHtml(item.slug || '')}" data-mc-title="${escapeHtml(item.title || 'Listing')}" data-mc-item="${escapeHtml(JSON.stringify(carComparePayload(item)))}" aria-label="Add to wishlist">
+              <i class="fi-heart animate-target fs-sm"></i>
+            </button>
+            <button type="button" class="btn btn-icon btn-sm btn-outline-secondary animate-shake rounded-circle" data-mc-home-car-action="notify" data-mc-slug="${escapeHtml(item.slug || '')}" data-mc-title="${escapeHtml(item.title || 'Listing')}" data-mc-item="${escapeHtml(JSON.stringify(carComparePayload(item)))}" aria-label="Notify">
+              <i class="fi-bell animate-target fs-sm"></i>
+            </button>
+            <button type="button" class="btn btn-icon btn-sm btn-outline-secondary animate-rotate rounded-circle" data-mc-home-car-action="compare" data-mc-slug="${escapeHtml(item.slug || '')}" data-mc-title="${escapeHtml(item.title || 'Listing')}" data-mc-item="${escapeHtml(JSON.stringify(carComparePayload(item)))}" aria-label="Compare">
+              <i class="fi-repeat animate-target fs-sm"></i>
+            </button>
+          </div>
+        </div>
+        <h3 class="h6 mb-2">
+          <a class="hover-effect-underline stretched-link me-1 text-decoration-none" href="${detailUrl(item)}">${escapeHtml(item.title)}</a>
+          ${item?.details?.car?.year ? `<span class="fs-xs fw-normal text-body-secondary">(${escapeHtml(item.details.car.year)})</span>` : ''}
+        </h3>
+        <div class="h6 mb-0">${escapeHtml(item.price || '')}</div>
+      </div>
+      <div class="card-footer bg-transparent border-0 pt-0 pb-4">
+        <div class="border-top pt-3">
+          <div class="row row-cols-2 g-2 fs-sm">
+            <div class="col d-flex align-items-center gap-2"><i class="fi-map-pin"></i>${escapeHtml(item.city?.name || 'Location')}</div>
+            <div class="col d-flex align-items-center gap-2"><i class="fi-tachometer"></i>${escapeHtml(item?.details?.car?.mileage ? `${item.details.car.mileage} mi` : 'N/A')}</div>
+            <div class="col d-flex align-items-center gap-2"><i class="fi-gas-pump"></i>${escapeHtml(item?.details?.car?.fuel_type || 'N/A')}</div>
+            <div class="col d-flex align-items-center gap-2"><i class="fi-gearbox"></i>${escapeHtml(item?.details?.car?.transmission || 'N/A')}</div>
+          </div>
+        </div>
+      </div>
+    </article>
+  `;
 
   const sectionConfig = (heading) => {
     if (!heading) return { strategy: 'blend', slots: 6 };
@@ -746,6 +1033,10 @@
         if (!item) return;
 
         const entryHref = detailUrl(item);
+        if (selectedModule === 'cars') {
+          card.outerHTML = renderCarCardMarkup(item);
+          return;
+        }
         card
           .querySelectorAll(
             `a[href="/entry/${selectedModule}"], a[href^="/entry/${selectedModule}?"], a[href="/listings/${selectedModule}"], a[href^="/listings/${selectedModule}?"], a[href="#!"], a[href="#"]`
@@ -840,6 +1131,10 @@
   safeRun(wireHeroSearch);
   safeRun(wireViewAllLinks);
   safeRun(wireNonDeadLinks);
+  safeRun(normalizeListingsDropdown);
+  safeRun(initializeStaticHomeCarActions);
+  safeRun(bindHomeCarActions);
+  safeRun(() => syncHomeCarActionStates());
   safeRun(() => syncStateLinks(persistedState));
 
   Promise.allSettled([
@@ -868,5 +1163,6 @@
     safeRun(hydrateDynamicFilters);
     safeRun(() => syncUpcomingDateRail(latest));
     safeRun(() => hydrateListingAnchors({ popular, latest }));
+    safeRun(() => syncHomeCarActionStates());
   });
 })();
