@@ -199,6 +199,106 @@
     gridMode,
   } = moduleConfig;
 
+  const updateRealEstateGoogleMap = () => {
+    if (selectedModule !== 'real-estate') return;
+    const mapHost = document.querySelector('[data-map][data-map-markers*="map-real-estate"]')
+      || document.querySelector('main [data-map]');
+    if (!mapHost) return;
+    const stateOption = stateSelect?.options?.[stateSelect.selectedIndex];
+    const cityOption = citySelect?.options?.[citySelect.selectedIndex];
+    const stateLabel = String(stateOption?.textContent || '').replace(/\s*\([A-Z]{2}\)\s*$/, '').trim();
+    const cityLabel = String(cityOption?.textContent || '').trim();
+    const hasCity = citySelect && !citySelect.disabled && citySelect.value && cityLabel && !/^select city$/i.test(cityLabel);
+    const hasState = stateSelect && stateSelect.value && stateLabel && !/^any state$/i.test(stateLabel);
+    const location = [hasCity ? cityLabel : '', hasState ? stateLabel : '', 'USA'].filter(Boolean).join(', ');
+    const src = `https://www.google.com/maps?q=${encodeURIComponent(location)}&output=embed`;
+    const currentFrame = mapHost.querySelector('iframe[data-real-estate-google-map]');
+    mapHost.removeAttribute('data-map');
+    mapHost.removeAttribute('data-map-markers');
+    if (currentFrame) {
+      if (currentFrame.src !== src) currentFrame.src = src;
+      return;
+    }
+    mapHost.innerHTML = '';
+    const frame = document.createElement('iframe');
+    frame.setAttribute('data-real-estate-google-map', '');
+    frame.title = `Property map for ${location}`;
+    frame.src = src;
+    frame.loading = 'eager';
+    frame.referrerPolicy = 'no-referrer-when-downgrade';
+    frame.style.cssText = 'width:100%;height:100%;min-height:520px;border:0;display:block;';
+    frame.setAttribute('allowfullscreen', '');
+    mapHost.appendChild(frame);
+  };
+  const removeListingLocationIcons = () => {
+    if (!['cars', 'contractors', 'real-estate', 'restaurants'].includes(selectedModule)) return;
+    const selectors = [
+      'select[data-location-state]',
+      'select[data-location-city]',
+      'select[aria-label="Car state select"]',
+      'select[aria-label="Car location select"]',
+      'select[aria-label="Property state select"]',
+      'select[aria-label="Property city select"]',
+      'select[aria-label="Location radius select"]',
+    ];
+    selectors.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((select) => {
+        const field = select.closest('.position-relative');
+        field?.querySelectorAll(':scope > i.fi-map, :scope > i.fi-map-pin, :scope > i.fi-navigation')
+          .forEach((icon) => icon.remove());
+        select.classList.remove('form-icon-start');
+        select.removeAttribute('data-select');
+      });
+    });
+  };
+
+  removeListingLocationIcons();
+
+  const applyListingLocationControlStyles = () => {
+    if (!['cars', 'contractors', 'real-estate', 'restaurants'].includes(selectedModule) || document.getElementById('mcListingLocationControlStyles')) return;
+    const style = document.createElement('style');
+    style.id = 'mcListingLocationControlStyles';
+    style.textContent = `
+      select[data-location-state], select[data-location-city],
+      select[aria-label="Car state select"], select[aria-label="Car location select"],
+      select[aria-label="Property state select"], select[aria-label="Property city select"],
+      select[aria-label="Location radius select"] {
+        width: 100%; min-height: 60px;
+        padding: 0 3.25rem 0 1.25rem !important;
+        border: 1px solid var(--fn-border-color, #d8dde7) !important;
+        border-radius: .8rem !important;
+        background-color: var(--fn-body-bg, #fff) !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%235d6472' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3e%3cpath d='m3 6 5 5 5-5'/%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 1.15rem center !important;
+        background-size: 1rem !important;
+        color: var(--fn-body-color, #333d4c) !important;
+        font-size: 1rem; font-weight: 500; line-height: 1.4;
+        text-align: left !important; appearance: none !important;
+        box-shadow: 0 1px 2px rgba(20, 29, 45, .03);
+        transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+      }
+      select[data-location-state]:hover:not(:disabled), select[data-location-city]:hover:not(:disabled),
+      select[aria-label="Car state select"]:hover:not(:disabled), select[aria-label="Car location select"]:hover:not(:disabled),
+      select[aria-label="Property state select"]:hover:not(:disabled), select[aria-label="Property city select"]:hover:not(:disabled),
+      select[aria-label="Location radius select"]:hover:not(:disabled) { border-color: #aeb7c6 !important; }
+      select[data-location-state]:focus, select[data-location-city]:focus,
+      select[aria-label="Car state select"]:focus, select[aria-label="Car location select"]:focus,
+      select[aria-label="Property state select"]:focus, select[aria-label="Property city select"]:focus,
+      select[aria-label="Location radius select"]:focus {
+        border-color: var(--fn-primary, #d85151) !important;
+        box-shadow: 0 0 0 .2rem rgba(216, 81, 81, .13) !important; outline: 0;
+      }
+      select[data-location-city]:disabled, select[aria-label="Car location select"]:disabled,
+      select[aria-label="Property city select"]:disabled {
+        border-style: dashed !important; background-color: #f5f7fa !important;
+        color: #98a2b3 !important; cursor: not-allowed; opacity: 1;
+      }
+    `;
+    document.head.appendChild(style);
+  };
+
+  applyListingLocationControlStyles();
   const applyFilterSidebarScrollbar = () => {
     if (selectedModule === 'real-estate') return;
     const sidebar = document.getElementById('filterSidebar');
@@ -2292,8 +2392,18 @@
       availabilityCheck.checked = !!state.availability;
     }
     if (selectedModule === 'cars') {
-      if (newCarsBtn) newCarsBtn.classList.toggle('active', state.stock === 'new');
-      if (usedCarsBtn) usedCarsBtn.classList.toggle('active', state.stock === 'used');
+      if (newCarsBtn) {
+        const active = state.stock === 'new';
+        newCarsBtn.classList.toggle('active', active);
+        if (active) newCarsBtn.setAttribute('aria-current', 'page');
+        else newCarsBtn.removeAttribute('aria-current');
+      }
+      if (usedCarsBtn) {
+        const active = state.stock === 'used';
+        usedCarsBtn.classList.toggle('active', active);
+        if (active) usedCarsBtn.setAttribute('aria-current', 'page');
+        else usedCarsBtn.removeAttribute('aria-current');
+      }
       syncCarsHeaderUi(null);
     }
 
@@ -2483,6 +2593,7 @@
       state.city = slugify(raw);
       state.page = 1;
       applyStateToUrl();
+      updateRealEstateGoogleMap();
       loadListings();
     });
   }
@@ -2497,6 +2608,7 @@
       await loadDynamicCities(state.state, '');
       syncControlsFromState();
       applyStateToUrl();
+      updateRealEstateGoogleMap();
       loadListings();
     });
   }
@@ -3106,10 +3218,14 @@
     syncDynamicLocationAvailability();
     loadDynamicStates()
       .then(() => loadDynamicCities(state.state, state.city))
-      .then(() => syncControlsFromState());
+      .then(() => {
+        syncControlsFromState();
+        updateRealEstateGoogleMap();
+      });
   }
 
   syncControlsFromState();
+  updateRealEstateGoogleMap();
   syncCarsViewUi();
   wireDeadPlaceholderLinks();
   applyStateToUrl();

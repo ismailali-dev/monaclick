@@ -921,6 +921,10 @@
     anchors.forEach((anchor) => {
       const card = anchor.closest('article, .card');
       if (!card || seenCards.has(card)) return;
+      if (
+        selectedModule === 'cars'
+        && !card.querySelector('button[aria-label*="wishlist" i], button[aria-label*="notify" i], button[aria-label*="compare" i]')
+      ) return;
       seenCards.add(card);
       cards.push(card);
     });
@@ -1021,22 +1025,33 @@
         sectionPool.push(newestEvent);
       }
 
-      for (let i = 0; i < slotCount; i += 1) {
-        const pooledItem = nextByStrategy(strategy);
-        if (!pooledItem) break;
-        sectionPool.push(pooledItem);
+      if (selectedModule === 'cars') {
+        const candidates = strategy === 'popular'
+          ? [...popular, ...latest]
+          : [...latest, ...popular];
+        const sectionSlugs = new Set(sectionPool.map((item) => item?.slug).filter(Boolean));
+        for (const candidate of candidates) {
+          if (!candidate?.slug || sectionSlugs.has(candidate.slug)) continue;
+          sectionPool.push(candidate);
+          sectionSlugs.add(candidate.slug);
+          if (sectionPool.length >= slotCount) break;
+        }
+      } else {
+        for (let i = 0; i < slotCount; i += 1) {
+          const pooledItem = nextByStrategy(strategy);
+          if (!pooledItem) break;
+          sectionPool.push(pooledItem);
+        }
       }
       if (!sectionPool.length) return;
 
       sectionCards.forEach((card, index) => {
-        const item = sectionPool[index % sectionPool.length];
-        if (!item) return;
-
-        const entryHref = detailUrl(item);
-        if (selectedModule === 'cars') {
-          card.outerHTML = renderCarCardMarkup(item);
+        const item = sectionPool[index];
+        if (!item) {
           return;
         }
+
+        const entryHref = detailUrl(item);
         card
           .querySelectorAll(
             `a[href="/entry/${selectedModule}"], a[href^="/entry/${selectedModule}?"], a[href="/listings/${selectedModule}"], a[href^="/listings/${selectedModule}?"], a[href="#!"], a[href="#"]`
@@ -1059,6 +1074,20 @@
           titleNode.setAttribute('href', entryHref);
         }
 
+        if (selectedModule === 'cars') {
+          const payload = JSON.stringify(carComparePayload(item));
+          card.querySelectorAll('button[aria-label]').forEach((button) => {
+            const label = String(button.getAttribute('aria-label') || '').toLowerCase();
+            const action = button.getAttribute('data-mc-home-car-action')
+              || (label.includes('wishlist') ? 'favorite' : label.includes('notify') ? 'notify' : label.includes('compare') ? 'compare' : '');
+            if (!action) return;
+            button.setAttribute('data-mc-home-car-action', action);
+            button.setAttribute('data-mc-slug', item.slug || '');
+            button.setAttribute('data-mc-title', item.title || 'Listing');
+            button.setAttribute('data-mc-item', payload);
+            button.classList.add('position-relative', 'z-2');
+          });
+        }
         const bookButton = Array.from(card.querySelectorAll('button')).find(
           (button) => (button.textContent || '').trim().toLowerCase() === 'book now'
         );

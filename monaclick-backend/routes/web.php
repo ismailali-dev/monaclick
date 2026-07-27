@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ListingController;
@@ -7616,6 +7616,42 @@ Route::get('/add-contractor-location', function (Request $request) use ($serve, 
 });
 Route::get('/about', fn () => $serve('about-v2.html'));
 Route::get('/blog', fn () => $serve('blog-layout-v1.html'));
+Route::get('/videos/{slug}', function (string $slug) use ($serve) {
+    $videos = [
+        'electric-mercedes-sedan-car-reportedly-debuting-in-2025' => [
+            'title' => 'Electric Mercedes sedan car reportedly debuting in 2025',
+            'image' => '/finder/assets/img/blog/v2/vlog/01.jpg',
+        ],
+        'budget-vs-premium-tyres-which-are-better-value-this-year' => [
+            'title' => 'Budget vs Premium tyres: which are better value this year?',
+            'image' => '/finder/assets/img/blog/v2/vlog/02.jpg',
+        ],
+        'tesla-fixes-common-recall-with-over-the-air-update' => [
+            'title' => 'Tesla fixes common recall with over-the-air update',
+            'image' => '/finder/assets/img/blog/v2/vlog/03.jpg',
+        ],
+    ];
+
+    abort_unless(isset($videos[$slug]), 404);
+    $video = $videos[$slug];
+    $response = $serve('blog-single-v2.html');
+    $html = str_replace(
+        [
+            'Monaclick | Blog Single Post v.2',
+            "Ford Edge to be discontinued in 2025, won't return for 2026",
+            '/finder/assets/img/blog/v2/single/01.jpg',
+        ],
+        [
+            'Monaclick | ' . $video['title'],
+            $video['title'],
+            $video['image'],
+        ],
+        $response->getContent()
+    );
+    $response->setContent($html);
+
+    return $response;
+})->where('slug', '[a-z0-9-]+');
 Route::get('/contact', fn () => $serve('contact-v2.html'));
 Route::get('/newsletter', fn () => $serve('newsletter.html'));
 Route::post('/newsletter', function (Request $request) {
