@@ -162,6 +162,37 @@
     detailsSection.insertAdjacentHTML('afterend', html);
   };
 
+  const formatHours = (hours) => {
+    if (!hours) return '';
+    if (typeof hours === 'string') return hours.trim();
+    if (typeof hours !== 'object' || Array.isArray(hours)) return '';
+
+    const dayNames = {
+      monday: 'Monday', tuesday: 'Tuesday', wednesday: 'Wednesday', thursday: 'Thursday',
+      friday: 'Friday', saturday: 'Saturday', sunday: 'Sunday',
+    };
+
+    const formatValue = (value) => {
+      if (typeof value === 'string' || typeof value === 'number') return String(value).trim();
+      if (typeof value === 'boolean') return value ? 'Open' : '';
+      if (!value || typeof value !== 'object' || Array.isArray(value)) return '';
+      if (value.enabled === false) return '';
+      const from = String(value.from ?? value.start ?? value.opens ?? '').trim();
+      const to = String(value.to ?? value.end ?? value.closes ?? '').trim();
+      if (from && to) return `${from} - ${to}`;
+      return from || to || (value.enabled === true ? 'Open' : '');
+    };
+
+    return Object.entries(hours)
+      .map(([day, value]) => {
+        const formatted = formatValue(value);
+        if (!formatted) return '';
+        const key = String(day).trim();
+        return `${dayNames[key.toLowerCase()] || key}: ${formatted}`;
+      })
+      .filter(Boolean)
+      .join(', ');
+  };
   const detailPairs = (item) => {
     const pairs = [];
     const add = (label, value) => {
@@ -180,9 +211,7 @@
       add('Service Area', d.service_area || '');
       add('License', d.license_number || '');
       add('Verified', d.is_verified ? 'Yes' : 'No');
-      if (d.business_hours && typeof d.business_hours === 'object') {
-        add('Hours', Object.entries(d.business_hours).map(([day, value]) => `${day}: ${value}`).join(', '));
-      }
+      add('Hours', formatHours(d.business_hours));
     }
 
     if (item.module === 'real-estate' && item.details?.property) {
@@ -236,9 +265,7 @@
       add('ZIP', d.zip_code || '');
       add('Seats', d.seating_capacity || '');
       add('Services', Array.isArray(d.services) ? d.services.filter(Boolean).join(', ') : '');
-      if (d.opening_hours && typeof d.opening_hours === 'object') {
-        add('Hours', Object.entries(d.opening_hours).map(([day, value]) => `${day}: ${value}`).join(', '));
-      }
+      add('Hours', formatHours(d.opening_hours));
       add('Contact', [d.phone, d.email].filter(Boolean).join(' • '));
     }
 
