@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-bs-theme="light" data-pwa="true">
   <head>
     <meta charset="utf-8">
@@ -41,7 +41,14 @@
     
     <link rel="stylesheet" href="/finder/assets/css/monaclick-finder-colors.css">
       <script src="/finder/assets/js/monaclick-theme-lock.js"></script>
-  </head>
+      <style id="mc-contractor-gallery-image-fit">
+      main [data-gallery="image-gallery"] .ratio > img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: contain !important;
+        object-position: center center !important;
+      }
+    </style>  </head>
 
 
   <!-- Body -->
@@ -1144,10 +1151,11 @@
     <script src="/finder/assets/vendor/choices.js/public/assets/scripts/choices.min.js"></script>
     <script src="/finder/assets/js/monaclick-global-footer.js?v=20260306-3"></script>
 
-    <script src="/finder/assets/js/monaclick-entry-dynamic.js?v=20260724-1"></script>
+    <script src="/finder/assets/js/monaclick-entry-dynamic.js?v=20260729-hours-fix"></script>
     <script src="/finder/assets/js/theme.min.js"></script>
   </body>
 </html>
+
 
 
 
