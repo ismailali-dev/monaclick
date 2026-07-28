@@ -436,9 +436,9 @@
             </a>
             <p class="fs-sm text-body-secondary pt-md-1" style="max-width: 290px">One platform for contractors, real estate, cars, and restaurants across major cities.</p>
             <div class="d-flex gap-3 pt-2 pt-md-3">
-              <a class="btn btn-icon btn-sm btn-secondary rounded-circle" href="/about" aria-label="Follow us on Instagram"><i class="fi-instagram fs-sm"></i></a>
-              <a class="btn btn-icon btn-sm btn-secondary rounded-circle" href="/about" aria-label="Follow us on Facebook"><i class="fi-facebook fs-sm"></i></a>
-              <a class="btn btn-icon btn-sm btn-secondary rounded-circle" href="/blog" aria-label="Follow us on X (Twitter)"><i class="fi-x fs-sm"></i></a>
+              <a class="btn btn-icon btn-sm btn-secondary rounded-circle" href="" aria-label="Follow us on Instagram"><i class="fi-instagram fs-sm"></i></a>
+              <a class="btn btn-icon btn-sm btn-secondary rounded-circle" href="" aria-label="Follow us on Facebook"><i class="fi-facebook fs-sm"></i></a>
+              <a class="btn btn-icon btn-sm btn-secondary rounded-circle" href="" aria-label="Follow us on X (Twitter)"><i class="fi-x fs-sm"></i></a>
             </div>
           </div>
 
