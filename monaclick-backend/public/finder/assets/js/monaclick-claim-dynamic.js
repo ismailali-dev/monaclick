@@ -105,6 +105,10 @@
       emailInput.value = prefillEmail;
       state.email = prefillEmail;
     }
+    if (emailInput) {
+      emailInput.readOnly = prefillEmail !== '';
+      emailInput.setAttribute('aria-readonly', prefillEmail !== '' ? 'true' : 'false');
+    }
     if (titleNode) titleNode.textContent = `Claim ${listing.title || 'your business'}`;
     if (textNode) {
       textNode.textContent = 'Enter your email to claim your business. We will send a 6-digit OTP to verify your email.';
