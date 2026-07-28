@@ -1367,6 +1367,14 @@
 
     const payload = {
       ...controls,
+      business_hours: Object.fromEntries(
+        ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+          .map((day) => [day, {
+            enabled: controls[day] === true || controls[day] === 'true' || controls[day] === 1 || controls[day] === '1',
+            from: String(controls[`${day}From`] || '').trim(),
+            to: String(controls[`${day}To`] || '').trim(),
+          }])
+      ),
       state: selectedState,
       'select:city-select': selectedCity,
       address: String(controls.address || document.getElementById('address')?.value || ''),
