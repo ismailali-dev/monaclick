@@ -790,9 +790,16 @@ class ListingSubmissionController extends Controller
         $existingHours = is_array($editListing?->contractorDetail?->business_hours)
             ? $editListing->contractorDetail->business_hours
             : [];
+        $submittedHours = is_array($payload['business_hours'] ?? null)
+            ? $payload['business_hours']
+            : [];
         $businessHours = [];
+
         foreach (['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $day) {
             $existingDay = $existingHours[$day] ?? null;
+            $submittedDay = is_array($submittedHours[$day] ?? null)
+                ? $submittedHours[$day]
+                : null;
             $existingEnabled = is_array($existingDay)
                 ? (bool) ($existingDay['enabled'] ?? false)
                 : (bool) $existingDay;
@@ -803,11 +810,23 @@ class ListingSubmissionController extends Controller
                 ? trim((string) ($existingDay['to'] ?? ''))
                 : '';
 
-            $enabled = array_key_exists($day, $payload)
-                ? (bool) $payload[$day]
-                : $existingEnabled;
-            $from = trim((string) ($payload[$day . 'From'] ?? $existingFrom));
-            $to = trim((string) ($payload[$day . 'To'] ?? $existingTo));
+            $enabled = $submittedDay !== null
+                ? filter_var($submittedDay['enabled'] ?? false, FILTER_VALIDATE_BOOL)
+                : (
+                    array_key_exists($day, $payload)
+                        ? filter_var($payload[$day], FILTER_VALIDATE_BOOL)
+                        : $existingEnabled
+                );
+            $from = trim((string) (
+                $submittedDay['from']
+                ?? $payload[$day . 'From']
+                ?? $existingFrom
+            ));
+            $to = trim((string) (
+                $submittedDay['to']
+                ?? $payload[$day . 'To']
+                ?? $existingTo
+            ));
 
             $businessHours[$day] = [
                 'enabled' => $enabled,
@@ -1561,15 +1580,31 @@ class ListingSubmissionController extends Controller
             }
             $hasValidHours = true;
             $hasEnabledHours = false;
+            $submittedHours = is_array($wizardData['business_hours'] ?? null)
+                ? $wizardData['business_hours']
+                : [];
             foreach (['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $day) {
-                $enabled = filter_var($wizardData[$day] ?? false, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
+                $submittedDay = is_array($submittedHours[$day] ?? null)
+                    ? $submittedHours[$day]
+                    : [];
+                $enabled = filter_var(
+                    $submittedDay['enabled'] ?? $wizardData[$day] ?? false,
+                    FILTER_VALIDATE_BOOL,
+                    FILTER_NULL_ON_FAILURE
+                );
                 if ($enabled !== true) {
                     continue;
                 }
                 $hasEnabledHours = true;
 
-                $from = $this->firstNonEmpty($wizardData, [$day . 'From']);
-                $to = $this->firstNonEmpty($wizardData, [$day . 'To']);
+                $from = trim((string) ($submittedDay['from'] ?? ''));
+                $to = trim((string) ($submittedDay['to'] ?? ''));
+                if ($from === '') {
+                    $from = $this->firstNonEmpty($wizardData, [$day . 'From']);
+                }
+                if ($to === '') {
+                    $to = $this->firstNonEmpty($wizardData, [$day . 'To']);
+                }
                 if ($from === '' || $to === '') {
                     $hasValidHours = false;
                     break;
