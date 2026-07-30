@@ -487,9 +487,6 @@ class ListingSubmissionController extends Controller
                 if (! ($file instanceof \Illuminate\Http\UploadedFile)) {
                     continue;
                 }
-                if (! $this->uploadedImageMeetsMinimumSize($file)) {
-                    return redirect('/add-property-photos?error=image-too-small&edit=' . $listing->id);
-                }
                 $path = $this->storePublicUpload($file, 'listings/properties');
                 if (! $path) {
                     continue;
@@ -877,9 +874,6 @@ class ListingSubmissionController extends Controller
         $galleryCoverPath = '';
         $profilePhoto = $request->file('profile_photo');
         if ($profilePhoto instanceof \Illuminate\Http\UploadedFile && $profilePhoto->isValid()) {
-            if (! $this->uploadedImageMeetsMinimumSize($profilePhoto)) {
-                return redirect('/add-contractor-profile?error=image-too-small&edit=' . $listing->id);
-            }
             $profileImagePath = (string) ($this->storePublicUpload($profilePhoto, 'listings/contractors/profile') ?? '');
         }
 
@@ -895,9 +889,6 @@ class ListingSubmissionController extends Controller
             foreach ($files as $file) {
                 if (! ($file instanceof \Illuminate\Http\UploadedFile) || ! $file->isValid()) {
                     continue;
-                }
-                if (! $this->uploadedImageMeetsMinimumSize($file)) {
-                    return redirect('/add-contractor-project?error=image-too-small&edit=' . $listing->id);
                 }
                 $path = $this->storePublicUpload($file, 'listings/contractors/gallery');
                 if (! $path) {
