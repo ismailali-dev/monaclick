@@ -3,7 +3,7 @@
   if (!path.startsWith('/listings')) return;
 
   const moduleFromPath = path.split('/')[2] || 'contractors';
-  const allowedModules = new Set(['contractors', 'real-estate', 'cars', 'events']);
+  const allowedModules = new Set(['contractors', 'restaurants', 'real-estate', 'cars', 'events']);
   const selectedModule = allowedModules.has(moduleFromPath) ? moduleFromPath : 'contractors';
 
   const cleanSearchTerm = (value) =>
@@ -31,7 +31,7 @@
       .replaceAll(/^-|-$/g, '');
 
   const moduleConfig = (() => {
-    if (selectedModule === 'contractors') {
+    if (selectedModule === 'contractors' || selectedModule === 'restaurants') {
       return {
         listContainer: document.querySelector('.col-lg-9 .vstack.gap-4'),
         resultsText: document.querySelector('.col-lg-9 .fs-sm.text-nowrap'),
@@ -380,7 +380,7 @@
   };
 
   const renderCards = (items) => {
-    if (selectedModule === 'contractors') {
+    if (selectedModule === 'contractors' || selectedModule === 'restaurants') {
       listContainer.innerHTML = items.map(contractorCard).join('');
       return;
     }

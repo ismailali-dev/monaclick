@@ -162,7 +162,9 @@ class Listing extends Model
             return $path;
         }
 
-        return asset('storage/' . ltrim($path, '/'));
+        // Keep uploaded media on the current origin. Using asset() here makes API
+        // responses independent of APP_URL host/scheme configuration.
+        return '/storage/' . ltrim($path, '/');
     }
 
     public static function normalizePrice(?string $price, bool $appendMonthlySuffix = false): ?string

@@ -46,6 +46,7 @@
   const numberFormatter = typeof Intl !== 'undefined'
     ? new Intl.NumberFormat('en-US')
     : null;
+    
 
   const formatDisplayedPrice = (value) => {
     const raw = String(value ?? '').trim();
@@ -60,6 +61,7 @@
     });
   };
 
+  
   const compareStorageKey = 'mc_related_compare_v1';
   const compareItemsStorageKey = 'mc_related_compare_items_v1';
   const favoritesStorageKey = 'mc_related_favorites_v1';
@@ -1458,11 +1460,7 @@
       return item.image_url || '/finder/assets/img/placeholders/preview-square.svg';
     }
     const image = String(item?.image_url || '').trim();
-    if (!image) return '/finder/assets/img/placeholders/preview-square.svg';
-    if (restaurantDemoImageSet.has(image)) {
-      return '/finder/assets/img/placeholders/preview-square.svg';
-    }
-    return image;
+    return image || '/finder/assets/img/home/city-guide/restaurants/01.png';
   };
 
   const contractorCard = (item) => {
@@ -1481,7 +1479,7 @@
         <div class="row g-0">
           <div class="col-sm-4 position-relative bg-body-tertiary" style="min-height: 220px">
             <a class="d-block w-100 h-100" href="${url}">
-              <img src="${image}" class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover" alt="${title}" onerror="this.onerror=null;this.src='/finder/assets/img/placeholders/preview-square.svg';">
+              <img src="${image}" class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover" alt="${title}" onerror="this.onerror=null;this.src='/finder/assets/img/home/city-guide/restaurants/01.png';">
             </a>
           </div>
           <div class="col-sm-8 d-flex p-3 p-sm-4" style="min-height: 255px">
@@ -2013,12 +2011,8 @@
       syncControlsFromState();
     }
 
-    if (selectedModule === 'restaurants' && !items.length) {
-      items = filterRestaurantFallbackItems(restaurantFallbackItems());
-    }
-
     if (resultsNode) {
-      const total = selectedModule === 'restaurants' && meta.total === 0 ? items.length : meta.total;
+      const total = Number(meta.total || 0);
       resultsNode.textContent = `Showing ${total} results`;
       syncCarsHeaderUi(total);
       if (selectedModule === 'real-estate') updateRealEstateFilterUi(total);
