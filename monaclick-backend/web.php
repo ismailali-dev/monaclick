@@ -3808,18 +3808,7 @@ HTML;
 
   input.addEventListener('change', async () => {
     const files = Array.from(input.files || []);
-    let hasDimensionError = false;
     for (const file of files) {
-      const dimensionCheck = await validateImageDimensions(file);
-      if (!dimensionCheck.ok) {
-        hasDimensionError = true;
-        const current = dimensionCheck.width > 0 && dimensionCheck.height > 0
-          ? ` Selected image is ${dimensionCheck.width}x${dimensionCheck.height}.`
-          : '';
-        setInlineUploadError(`Image must be at least ${MIN_IMAGE_WIDTH}x${MIN_IMAGE_HEIGHT}.${current}`);
-        continue;
-      }
-      setInlineUploadError('');
       const id = nextFileId++;
       selectedFiles.push({ id, file });
       const src = URL.createObjectURL(file);
@@ -3827,7 +3816,7 @@ HTML;
       const card = makeCard(src, isVideo, id);
       grid.insertBefore(card, uploadCol);
     }
-    if (!hasDimensionError && files.length) {
+    if (files.length) {
       setInlineUploadError('');
     }
     syncInputFiles();
@@ -8046,7 +8035,7 @@ Route::middleware('auth')->group(function () use ($serve, $normalizeUsPhone) {
         }
 
         $request->validate([
-            'profile_photo' => ['required', 'image', 'max:8192', 'dimensions:min_width=1024,min_height=714'],
+            'profile_photo' => ['required', 'image', 'max:8192'],
         ]);
 
         $file = $request->file('profile_photo');
